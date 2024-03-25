@@ -1,0 +1,24 @@
+{
+  "name": "stadvdb-mco2-application",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "console-error": "^0.0.4",
+    "console-info": "^0.0.5",
+    "console-success": "^1.0.4",
+    "console-warn": "^0.0.4",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.9",
+    "express": "^4.19.1",
+    "flowbite": "^2.3.0",
+    "mysql": "^2.18.1",
+    "supervisor": "^0.12.0"
+  }
+}
