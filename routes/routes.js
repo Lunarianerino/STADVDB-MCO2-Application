@@ -9,85 +9,40 @@ const mysql = require('mysql');
 //     database: 'mco2database_vismin'
 // });
 
-var con = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'aristeo0',
-    database: 'mco2database_vismin'
-});
-con.connect(function(err){ 
-    if(err) throw err;
-    console.info("Connection Successful!");
-});
+/**
+ * Controllers
+ */
+const AppointmentsController = require('../controllers/AppointmentsController.js');
+const DashboardController = require('../controllers/DashboardController.js');
+const DatabaseController = require('../controllers/DatabaseController.js');
 
-function query(offset, callback){
-    var query_result = undefined;
-    offset = offset || 0;
-    offset = offset * 10;
-    con.query(`SELECT * FROM appointments LIMIT ${offset},10`, function(err, result, fields) {
-        if(err) {
-            return callback(err, null);
-        }
-        return callback(null, result);
-    });
-}
-
+DatabaseController.connect(function() {
+    console.info('Connected to the Node: VISMIN')
+});
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    query(0, function(err, result){
-        if (err) {
-            console.log(err);
-        } else {
-            res.render('index', {contents: result});
-        }
-    });
-    
-});
-
-router.get('/insert', (req,res) => {
-    res.render('partials/insert');
-});
+router.get('/insert', DatabaseController.insert_partial);
 
 
-router.post('/insert', (req,res) => {
-    //the 32bit unique identifiers used by the system is done by unhex(replace(uuid(),'-',''))
-    let body = req.body;
-    
-    for (let field in body) {
-        if (body[field] == "") {
-            body[field] = null;
-        }
-    }
-
-    if (body["isvirtual"] == undefined){
-        body.isvirtual = false;
-    } else {
-        body.isvirtual = true;
-    }
-
-    query_select(body, function(err, result)
-    {
-        console.log("Nasa labas na ako!");
-        res.send(result);
-    });
-})
 
 router.get('/find', (req,res) => {
     res.render('partials/find');
 });
 
-router.get('/update/:query', (req,res) => {
-    let body = {};
-    body.query = req.params.query;
+router.get('/update/:query', DatabaseController.update_document);
 
-    query_select(body, function(err, result)
-    {
-        console.log(result)
-        res.render('partials/update', {contents: result});
-    });
-});
 
+/**
+ * Appointments Routes
+ */
+router.get('/', AppointmentsController.getPage);
+
+
+/**
+ * Dashboard Routes
+ */
+
+router.get('/dashboard', DashboardController.getPage);
 //TODO: add error handling
 module.exports = router;
