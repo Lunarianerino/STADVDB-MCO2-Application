@@ -1,0 +1,35 @@
+<form id="insert" method="post">
+    <label for="apptstatus">Appointment status: </label>
+    <input type="text" name ="apptstatus" id="apptstatus">
+    <br>
+    <label for="patientid">Patient ID: </label>
+    <input type="text" name="patientid" id="Patientid">
+    <br>
+    <label for="age">Age: </label>
+    <input type="number" name="age" id="age">
+    <br>
+    <label for="gender">Gender: </label>
+    <select name="gender" id="gender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+    </select>
+    <br>
+    <label for="doctorid">Doctor ID: </label>
+    <input type="text" name="doctorid" id="doctorid" placeholder="Doctor ID">
+    <br>
+    <label for="clinicid">Clinic ID: </label>
+    <input type="text" name="clinicid" id="clinicid" placeholder="Clinic ID">
+    <br>
+    <label for="queuedate">Queue Date: </label>
+    <input type="datetime-local" name="queueDate">
+    <br>
+    <label for="type">Type: </label>
+    <select name="type" id="type">
+        <option value="consultation">Consultation</option>
+        <option value="inpatient">Inpatient</option>
+    </select>
+    <br>
+    <label for="isVirtual">Virtual?</label>
+    <input type="checkbox" name="isVirtual" id="isVirtual">
+    <br>
+</form>

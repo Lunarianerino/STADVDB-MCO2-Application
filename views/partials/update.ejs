@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insert Operation</title>
-</head>
-<body>
+<div style = "border:1px solid black; width:25%">
     <form id="insert" method="post">
         <label for="apptstatus">Appointment status: </label>
-        <input type="text" name ="apptstatus" id="apptstatus">
+        <input type="text" name ="apptstatus" id="apptstatus" value = "<%= contents.apptstatus %>">
         <br>
         <label for="patientid">Patient ID: </label>
         <input type="text" name="patientid" id="Patientid">
@@ -40,7 +33,5 @@
         <label for="isVirtual">Virtual?</label>
         <input type="checkbox" name="isVirtual" id="isVirtual">
         <br>
-        <input type="submit" value="Reserve Appointment">
     </form>
-</body>
-</html>
+</div>
