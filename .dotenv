@@ -1,4 +1,17 @@
 #Database URLS for the different nodes
-DB_FULL=
-DB_LUZON=
-DB_VISMIN=
+
+#-----------------FULL DB--------------
+DB_FULL=ccscloud.dlsu.edu.ph
+DB_FULL_PORT=20213
+
+#-----------------LUZON DB--------------
+DB_LUZON=ccscloud.dlsu.edu.ph
+DB_LUZON_PORT=20214
+
+
+#-----------------VISMIN DB--------------
+DB_VISMIN=ccscloud.dlsu.edu.ph
+DB_VISMIN_PORT=20215
+
+DB_USER=root
+DB_PASSWORD=password

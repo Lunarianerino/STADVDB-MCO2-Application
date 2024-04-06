@@ -3,10 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <title>SeriousMD Developer</title>
 </head>
 <body>
+    <div class="navbar">
+        <div class="nav-links">
+            <a href="/">Appointments</a>
+            <a href="/dashboard">Dashboard</a>
+    </div>
     <h1>Appointment System</h1>
     <% for(var i = 0; i < contents.length; i++) { %>
         <div id = "<%= contents[i].apptid %>">
