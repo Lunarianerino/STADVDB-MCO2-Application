@@ -10,7 +10,7 @@
     <h1>Appointment System</h1>
     <% for(var i = 0; i < contents.length; i++) { %>
         <div id = "<%= contents[i].apptid %>">
-            <input type="checkbox" name="select">
+            <input type="checkbox" name="select" class="select-box">
             <h2>Appointment ID: <%= contents[i].apptid %></h2>
             <p>Appointment Status: <%= contents[i].apptstatus %></p>
             <p>Patient ID: <%= contents[i].appttype %> </p>
@@ -20,5 +20,21 @@
         </div>
     <% } %>
 
+    <div style="position:sticky; bottom:0; height:50px; width:100%; max-width:100%; background-color: hotpink;" id="selected" hidden>
+        <p>Selected: <span id="selected-number">0</span></p>
+        <button>Delete</button>
+        <button>Set Status</button>
+    </div>
+
+    <script>
+        $('.select-box').on('click', function() {
+            var selected = [];
+            $('.select-box:checked').each(function() {
+                selected.push($(this).parent().attr('id'));
+            });
+            $('#selected').show();
+            $('#selected-number').html(selected.length);
+        });
+    </script>
 </body>
 </html>
