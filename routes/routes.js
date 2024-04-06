@@ -20,52 +20,30 @@ con.connect(function(err){
     console.info("Connection Successful!");
 });
 
-function query(body){
-    var result = con.connect(function(err){
-        if(err) throw err;
-        console.info("Connection Successful!");
-
-        var result = con.query('INSERT INTO appointments VALUES (replace(uuid(),"-",""), "Queued", NOW(), "Test", NULL, NULL, "test", NULL, NULL, "Mindanao", NULL, NULL, NULL)', function(err, result) {
-            if(err) console.error('error connecting:' + err.stack);
-            console.info('insert successful');
-            return result;
-        });
-
-        con.end();
-        return "success"
-    });
-
-    return result;
-}
-
-function query_update_one(body){
-    var result = con.connect(function(err){
-        if (err) throw err;
-        console.info("Connection Successful!");
-
-        //insert query here
-        
-    })
-}
-
-function query_select(body){
-
-    let result = con.query(`SELECT * FROM appointments LIMIT 10`, function(err, result, fields) {
+function query(offset, callback){
+    var query_result = undefined;
+    offset = offset || 0;
+    offset = offset * 10;
+    con.query(`SELECT * FROM appointments LIMIT ${offset},10`, function(err, result, fields) {
         if(err) {
-            callback(err, null);
+            return callback(err, null);
         }
-        return result;
+        return callback(null, result);
     });
-
-    return result;
 }
 
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-    let result = query_select({});
-    res.render('index', {contents: result});
+    query(0, function(err, result){
+        if (err) {
+            console.log(err);
+        } else {
+        res.render('index', {contents: result});
+        }
+    });
+    
 });
 
 router.get('/insert', (req,res) => {
