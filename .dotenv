@@ -15,3 +15,5 @@ DB_VISMIN_PORT=20215
 
 DB_USER=root
 DB_PASSWORD=password
+
+DB_NAME=mco2database
