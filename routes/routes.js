@@ -16,9 +16,9 @@ const AppointmentsController = require('../controllers/AppointmentsController.js
 const DashboardController = require('../controllers/DashboardController.js');
 const DatabaseController = require('../controllers/DatabaseController.js');
 
-DatabaseController.connect(function() {
-    console.info('Connected to the Node: VISMIN')
-});
+// DatabaseController.connect(function() {
+//     console.info('Connected to the Node: VISMIN')
+// });
 
 const router = express.Router();
 

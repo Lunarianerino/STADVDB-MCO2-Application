@@ -22,6 +22,7 @@ const bodyParser = require('body-parser');
     Defined libraries
 */
 const routes = require('./routes/routes.js');
+const api_routes = require('./routes/api_routes.js');
 
 /*
     Environment variables
@@ -49,6 +50,7 @@ app.set('view engine', 'ejs');
 app.use (express.static(`public`));
 app.use (bodyParser.urlencoded({encoded: false, extended: true}));
 
+app.use('/api', api_routes);
 app.use('/', routes);
 app.listen(PORT, function()
 {

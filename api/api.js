@@ -1,16 +1,54 @@
 const api = {};
 const mysql = require('mysql');
 const dotenv = require('dotenv');
-const axios = require('axios');
+//const axios = require('axios');
 dotenv.config();
 
 const con = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
     password: 'aristeo0',
-    database: process.env.DB_NAME
+    database: 'mco2database_vismin'
 })
 
+const central_node = mysql.createPool({
+    host: process.env.DB_FULL,
+    port: process.env.DB_FULL_PORT,
+    user: process.env.DB_USER,
+    database: process.env.DB,
+    password: process.env.DB_PASSWORD,
+    waitForConnections: true,
+    connectionLimit: 10,
+    maxIdle: 10,
+    idleTimeout: 60000,
+    queueLimit: 0
+});
+
+const luzon_node = mysql.createPool({
+    host: process.env.DB_LUZON,
+    port: process.env.DB_LUZON_PORT,
+    user: process.env.DB_USER,
+    database: process.env.DB,
+    password: process.env.DB_PASSWORD,
+    waitForConnections: true,
+    connectionLimit: 10,
+    maxIdle: 10,
+    idleTimeout: 60000,
+    queueLimit: 0
+});
+
+const vismin_node = mysql.createPool({
+    host: process.env.DB_VISMIN,
+    port: process.env.DB_VISMIN_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB,
+    waitForConnections: true,
+    connectionLimit: 10,
+    maxIdle: 10,
+    idleTimeout: 60000,
+    queueLimit: 0
+});
 api.connect = function(callback) {
     con.connect(function(err) {
         if (err) throw err;
@@ -19,19 +57,35 @@ api.connect = function(callback) {
 }
 
 api.checkNodes = async function(req, res) {
-    var nodes = {};
-    var nodesList = ['MASTER', 'SLAVE_LUZON', 'SLAVE_VISMIN'];
-    //TODO: REVISE
-    for (node of nodesList) {
-        await axios.get(process.env[node] + '/api/status')
-        .then(res => {        
-            nodes[node] = res.status;
-        })
-        .catch(err => {
-            nodes[node] = 400;
+    let nodes = {};
+    central_node.getConnection(function(err, connection) {
+        if (err) {
+            nodes.CENTRAL_NODE = 400;
+            console.log(err)
+        } else {
+            nodes.CENTRAL_NODE = 200;
+        }
+        luzon_node.getConnection(function(err, connection) {
+            if (err) {
+                nodes.LUZON_NODE = 400;
+            } else {
+                nodes.LUZON_NODE = 200;
+            }
+            vismin_node.getConnection(function(err, connection) {
+                if (err) {
+                    nodes.VISMIN_NODE = 400;
+                } else {
+                    nodes.VISMIN_NODE = 200;
+                }
+                console.log(nodes);
+                res.status(200).send(nodes);
+                connection.release();
+            });
+            connection.release();
         });
-    }
-    res.send(nodes);
+        connection.release();
+        return;
+    });
 }
 
 api.status = function(req, res) {
