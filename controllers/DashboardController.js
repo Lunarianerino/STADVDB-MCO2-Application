@@ -2,7 +2,7 @@
 
 const DashboardController = {
     getPage: (req, res) => {
-        res.render('/dashboard');
+        res.render('dashboard');
     }
 };
 
