@@ -17,14 +17,28 @@ $(document).ready(function() {
         
         let update_params = {
             apptstatus: status,
-            apptid_arr: rows
+            apptid_arr: JSON.stringify(rows)
         };
 
         console.log(update_params);
 
         /**
-         * Make an API call here to update the status of the selected rows
+         * Makes an API call  to update the status of the selected rows
          */
+
+        $.get('/api/update', update_params, function(data, status) {
+            console.log(status);
+            console.log(data);
+
+            if (status != 'success') {
+                alert('Error updating appointment status');
+                return;
+            }
+
+            //success message
+            alert('Appointments updated successfully');
+            location.reload();
+        })
 
     })
 
@@ -47,9 +61,27 @@ $(document).ready(function() {
         });
 
         let delete_params = {
-            apptid_arr: rows
+            apptid_arr: JSON.stringify(rows)
         };
 
         console.log(delete_params);
+
+        /**
+         * Makes an API call  to delete the status of the selected rows
+         */
+
+        $.get('/api/delete', delete_params, function(data, status) {
+            console.log(status);
+            console.log(data);
+
+            if (status != 'success') {
+                alert('Error deleting appointment');
+                return;
+            }
+
+            //success message
+            alert('Appointments deleted successfully');
+            location.reload();
+        });
     });
 })
