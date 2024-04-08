@@ -123,17 +123,17 @@ api.find = async function(req, res) {
 };
 
 api.update = function(req, res) {
-    var query = `UPDATE ${process.env.DB}.appointments SET `;
+    var query = `UPDATE ${process.env.DB_NAME}.appointments SET `;
     var flag = false;
 
     //EVERYTHING IN HERE HAS TO BE STRING, E.G apptid_arr = ["1","2","3"]
-    var apptid_arr = req.body.apptid_arr;
+    var apptid_arr = req.query.apptid_arr;
     apptid_arr=apptid_arr.replace(/\[|\]/g,'').split(',');
     console.log(apptid_arr[0])
 
-    for(key in req.body) {
+    for(key in req.query) {
         if (key != 'apptid_arr') {
-            query += key + " = '" + req.body[key] + "', ";
+            query += key + " = '" + req.query[key] + "', ";
             flag = true;
         }
     }
@@ -141,6 +141,7 @@ api.update = function(req, res) {
         res.status(400).send({message: 'No data to update'});
     } else {
         query = query.slice(0, -2); // remove the last ','
+        query = query.replace('/"/"', '"');//remove the first and last ""
         query += " WHERE apptid IN(" + apptid_arr.join() + ");";
         console.log(query);
         con.query(query, function(err, result) {
