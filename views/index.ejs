@@ -8,7 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://kit.fontawesome.com/de9022eef9.js" crossorigin="anonymous"></script>
     <script src="./javascript/index.js"></script>
+    <script src="./javascript/table.js"></script>
+    <script src="./javascript/search-utils.js"></script>
+    <script src="./javascript/operations.js"></script>
+
     <title>SeriousMD Tools | Appointments</title>
 </head>
 <body>
@@ -16,17 +21,17 @@
     
     <div class="table-container">
         <h1>SeriousMD Appointments</h1>
-        <h2>Server Status</h2>
+        <h2>Server Status <i class="fa-solid fa-server"></i></h2>
         <div class="servers">
-            <div class="server up">
+            <div class="server" id="CENTRAL_NODE">
                 <div class="server-icon"></div>
                 <p>Centralized</p>
             </div>
-            <div class="server down">
+            <div class="server" id="LUZON_NODE">
                 <div class="server-icon"></div>
                 <p>Luzon</p>
             </div>
-            <div class="server down">
+            <div class="server" id="VISMIN_NODE">
                 <div class="server-icon"></div>
                 <p>Visayas / Mindanao</p>
             </div>
@@ -43,27 +48,27 @@
                             <label for="island-filter">Island:</label>
                             <select name="island-filter" id="island-filter">
                                 <option value="all">All</option>
-                                <option value="luzon">Luzon</option>
-                                <option value="visayas">Visayas</option>
-                                <option value="mindanao">Mindanao</option>
+                                <option value="Luzon">Luzon</option>
+                                <option value="Visayas">Visayas</option>
+                                <option value="Mindanao">Mindanao</option>
                             </select>
                         </div>
                         <div class="filter">
                             <label for="select-filter">Status:</label>
                             <select name="select-filter" id="select-filter">
                                 <option value="all">All</option>
-                                <option value="complete">Complete</option>
-                                <option value="queued">Queued</option>
-                                <option value="serving">Serving</option>
-                                <option value="noshow">NoShow</option>
-                                <option value="skip">Skip</option>
+                                <option value="Complete">Complete</option>
+                                <option value="Queued">Queued</option>
+                                <option value="Serving">Serving</option>
+                                <option value="NoShow">NoShow</option>
+                                <option value="Skip">Skip</option>
                             </select>
                         </div>
                     </div>
                     
                     <div class="filter-buttons">
-                        <button type="submit" class="form-button filter-button">Filter</button>
-                        <button type="reset" class="form-button reset-button">Reset</button>
+                        <button type="submit" class="form-button filter-button"><i class="fa-solid fa-filter"></i></button>
+                        <button type="reset" class="form-button reset-button"><i class="fa-solid fa-eraser"></i></button>
                     </div>
                     
                 </div>
@@ -72,24 +77,13 @@
         <table class="appointments-table">
             <tr class="table-header">
                 <th><input type="checkbox" id="select-all"></th>
-                <th>Appointment ID</th>
+                <th>Appointment ID </th>
                 <th>Island</th>
                 <th>Province</th>
                 <th>City</th>
                 <th>Type</th>
                 <th>Status</th>
             </tr>
-            <% for(var i = 0; i < contents.length; i++) { %>
-                <tr id = "<%= contents[i].apptid %>">
-                    <td><input type="checkbox" class="select-box"></td>
-                    <td><%= contents[i].apptid %></td>
-                    <td><%= contents[i].islandgroup %></td>
-                    <td><%= contents[i].province %></td>
-                    <td><%= contents[i].city %></td>
-                    <td><%= contents[i].appttype %></td>
-                    <td class="apptstatus"><div class="status-icon"></div><%= contents[i].apptstatus %></td>
-                </tr>
-            <% } %>
         </table>
     </div>
     
@@ -97,65 +91,24 @@
     <div class="load-more">
         <button class="load-more-button">Load More</button>
     </div>
+    <div class="scroll-to-top">
+        <button class="scroll-to-top-button"><i class="fa-solid fa-arrow-up"></i></button>
+    </div>
     <div id="selected" hidden>
         <div class="selected-controls">
             <p><span id="selected-number">0</span> Appointments Selected</p>
             <div class="selected-status">
                 <select name="selected-status" id="selected-status">
-                    <option value=none Selected Disabled>Change Status</option>
-                    <option value="complete">Complete</option>
-                    <option value="queued">Queued</option>
-                    <option value="serving">Serving</option>
-                    <option value="noshow">NoShow</option>
-                    <option value="skip">Skip</option>
+                    <option value=none Default Selected Disabled>Change Status</option>
+                    <option value="Complete">Complete</option>
+                    <option value="Queued">Queued</option>
+                    <option value="Serving">Serving</option>
+                    <option value="NoShow">NoShow</option>
+                    <option value="Skip">Skip</option>
                 </select>
             </div>
-            <button class="selected-button">Set Status</button>
-            <button class="delete-button">Remove Appointment</button>
+            <button class="delete-button form-button" id="delete-button"><i class="fa-solid fa-trash"></i></button>
         </div>
     </div>
-    
-
-    <script>
-        $('.select-box').on('change', function() {
-            var selected = [];
-            $('.select-box:checked').each(function() {
-                selected.push($(this).parent().attr('id'));
-            });
-            $('#selected').show();
-            $('#selected-number').html(selected.length);
-
-            //add class "selected" to the row
-            $('.select-box').each(function() {
-                if ($(this).is(':checked')) {
-                    $(this).parent().parent().addClass('selected');
-                } else {
-                    $(this).parent().parent().removeClass('selected');
-                }
-            });
-            
-        });
-
-        $('.select-box').on('change', function(){
-            var selected = [];
-            if ($('.select-box:checked').length == 0) {
-                $('#selected').hide();
-            };
-
-            //uncheck select-all
-            if ($('.select-box:checked').length == $('.select-box').length) {
-                $('#select-all').prop('checked', true);
-            } else {
-                $('#select-all').prop('checked', false);
-            }
-        })
-
-        $('#select-all').on('change', function(){
-            var selected = [];
-            if ($('.select-box:checked').length == 0) {
-                $('#selected').hide();
-            };
-        });
-    </script>
 </body>
 </html>

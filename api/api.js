@@ -5,10 +5,10 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const con = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: 'aristeo0',
-    database: 'mco2database_vismin'
+    host: process.env.LOCAL_HOST,
+    user: process.env.LOCAL_ACCOUNT,
+    password: 'password',
+    database: process.env.LOCAL_DB,
 })
 
 const central_node = mysql.createPool({
@@ -99,10 +99,10 @@ api.find = async function(req, res) {
     var where_clause = "WHERE ";
     var flag = false;
     
-    console.log(req.body);
-    for (key in req.body) {
+    console.log(req.query);
+    for (key in req.query) {
         if (key != 'limit' && key != 'offset') {
-            where_clause += key + " = '" + req.body[key] + "' AND ";
+            where_clause += key + " = '" + req.query[key] + "' AND ";
             flag = true;
         }
     }
@@ -112,7 +112,8 @@ api.find = async function(req, res) {
     // add the limit and offset
     where_clause += " LIMIT " + limit + " OFFSET " + offset;
 
-    var query = `SELECT * FROM ${process.env.DB}.appointments ${where_clause};`;
+    var query = `SELECT * FROM ${process.env.DB_NAME}.appointments ${where_clause};`;
+    console.info(query)
     con.query(query, function(err, result) {
     if (err){
         return res.status(400).send({message: err});
@@ -120,6 +121,7 @@ api.find = async function(req, res) {
     return res.status(200).send(result);
     });
 };
+
 api.update = function(req, res) {
     var query = `UPDATE ${process.env.DB}.appointments SET `;
     var flag = false;

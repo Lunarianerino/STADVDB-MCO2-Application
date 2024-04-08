@@ -1,47 +1,40 @@
-
 $(document).ready(function() {
-    $('.load-more-button').click(function() {
-        // change to actual ajax call
-        // var last_id = ${'.post'}.last().attr('id');
-        // $.ajax({
-        //     type: 'POST',
-        //     url: '/load_more',
-        //     data: {
-        //         last_id: last_id
-        //     },
-        //     success: function(data) {
-        //         ${'.post'}.last().after(data);
-        //     }
-        // });
+    /**
+     * Logic for checking all node statuses
+     * Calls /status using AJAX
+     */
+    $.get('/api/checkNodes', function(statuses) {
+        console.log('Node Status Checked');
+        console.log(statuses);
 
-        for(i=0; i<11; i++){
-            var row = '<tr>' +
-                        '<td><input type="checkbox" class="select-box"></td>'+
-                        '<td>Palawan</td>' +
-                        '<td>Palawan</td>' +
-                        '<td>Puerto Princesa</td>' +
-                        '<td>Joe Biden</td>' +
-                        '<td>Onsite</td>' +
-                        '<td class="appstatus">NoShow</td>' +
-                      '</tr>';
-            $('.appointments-table').append(row);
+        if (statuses.CENTRAL_NODE == 200) {
+            addclasses('#CENTRAL_NODE', 'up');
+        } else {
+            addclasses('#CENTRAL_NODE', 'down');
         }
-        
 
+        if (statuses.LUZON_NODE == 200) {
+            addclasses('#LUZON_NODE', 'up');
+        } else {
+            addclasses('#LUZON_NODE', 'down');
+        }
 
-    });
+        if (statuses.VISMIN_NODE == 200) {
+            addclasses('#VISMIN_NODE', 'up');
+        } else {
+            addclasses('#VISMIN_NODE', 'down');
+        }
+    })
 
+    /**
+     * Logic for getting the selected rows
+     */
     $('#select-all').click(function() {
         if ($(this).prop('checked')) {
             $('.select-box').prop('checked', true);
         } else {
             $('.select-box').prop('checked', false);
-            $('.select-box').on('change', function(){
             var selected = [];
-            if ($('.select-box:checked').length == 0) {
-                $('#selected').hide();
-            };
-        })
         }
 
         var selected = [];
@@ -63,20 +56,74 @@ $(document).ready(function() {
             }
         });
 
+        if ($('.select-box:checked').length == 0) {
+            $('#selected').hide();
+        }
+
         
     }); 
 
+    $('.select-box').on('change', function() {
+        var selected = [];
+        $('.select-box:checked').each(function() {
+            selected.push($(this).parent().attr('id'));
+        });
+        $('#selected').show();
+        $('#selected-number').html(selected.length);
 
+        //add class "selected" to the row
+        $('.select-box').each(function() {
+            if ($(this).is(':checked')) {
+                $(this).parent().parent().addClass('selected');
+            } else {
+                $(this).parent().parent().removeClass('selected');
+            }
+        });
+    
+    });
+
+    $('.appointments-table').on('change', '.select-box', function() {
+        var selected = [];
+        $('.select-box:checked').each(function() {
+            selected.push($(this).parent().attr('id'));
+        });
+        $('#selected').show();
+        $('#selected-number').html(selected.length);
+
+        //add class "selected" to the row
+        $('.select-box').each(function() {
+            if ($(this).is(':checked')) {
+                $(this).parent().parent().addClass('selected');
+            } else {
+                $(this).parent().parent().removeClass('selected');
+            }
+        });
+
+        //hide if 0
+        if ($('.select-box:checked').length == 0) {
+            $('#selected').hide();
+        }
+    });
+
+
+    /**
+     * Logic for scroll-to-top-button
+     */
+
+    $(window).scroll(function() {
+        if ($(this).scrollTop() > 800) {
+            $('.scroll-to-top-button').fadeIn();
+        } else {
+            $('.scroll-to-top-button').fadeOut();
+        }
+    });
+
+    $('.scroll-to-top-button').click(function() {
+        $('html, body').animate({scrollTop: 0}, 800);
+    });
 
 });
 
 function addclasses(status, type) {
-    //cancel if the row already has the class
-    if ($(status).hasClass('status')) {
-        return;
-    }
-
-    $(status). addClass('status');
     $(status).addClass(type);
-    $(status).addClass('fade');
 }
