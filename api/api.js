@@ -154,9 +154,9 @@ api.update = function(req, res) {
 };
 api.delete = function(req, res) {
     
-    var apptid_arr = req.body.apptid_arr;
+    var apptid_arr = req.query.apptid_arr;
     apptid_arr=apptid_arr.replace(/\[|\]/g,'').split(',');
-    var query = `DELETE FROM ${process.env.DB}.appointments WHERE apptid IN (${apptid_arr.join()});`;
+    var query = `DELETE FROM ${process.env.DB_NAME}.appointments WHERE apptid IN (${apptid_arr.join()});`;
     console.log(query);
 
     con.query(query, function(err, result) {
