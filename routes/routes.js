@@ -13,7 +13,7 @@ const mysql = require('mysql');
  * Controllers
  */
 const AppointmentsController = require('../controllers/AppointmentsController.js');
-const DashboardController = require('../controllers/DashboardController.js');
+const ReportController = require('../controllers/ReportController.js');
 const DatabaseController = require('../controllers/DatabaseController.js');
 
 // DatabaseController.connect(function() {
@@ -44,10 +44,10 @@ router.get('/', AppointmentsController.getPage);
 router.get('/details/:apptid', AppointmentsController.getDetails);
 
 /**
- * Dashboard Routes
+ * Report Routes
  */
 
-router.get('/dashboard', DashboardController.getPage);
+router.get('/report', ReportController.getPage);
 
 
 

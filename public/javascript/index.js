@@ -142,14 +142,32 @@ $(document).ready(function() {
         //set class to open
         if (isOpen) {
             $(this).removeClass('open');
-            $('.dev-tools-contents').hide();
+            $('.dev-tools-contents').slideDown();
             $('#arrow-icon').attr('class', 'fa-solid fa-arrow-up');
             return; 
         } else {
             $(this).addClass('open');
-            $('.dev-tools-contents').show();
+            $('.dev-tools-contents').slideUp();
             $('#arrow-icon').attr('class', 'fa-solid fa-arrow-down');
         }
+    });
+
+    /**
+     * Logic for adding a new appointment, redirect to /add
+     */
+    $('.add-button').click(function() {
+        window.location.href = window.location.origin + '/add';
+    });
+
+    /**
+     * Logic for showing add-button-tooltip when on hover
+     */
+    $('.add-button').hover(function() {
+        $('.add-button-tooltip').slideDown();
+    });
+
+    $('.add-button').mouseleave(function() {
+        $('.add-button-tooltip').slideUp();
     });
 });
 
