@@ -30,6 +30,9 @@ router.get('/delete', api.delete);
 
 router.get('/insert', api.insert);
 
+router.get('/getappt/:apptid', api.getappt);
+
+
 
 //TODO: add error handling
 module.exports = router;

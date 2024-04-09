@@ -43,7 +43,18 @@ tr{
   padding: 8px;
   box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.1);
   
+  transition: all 0.1s ease;
 
+}
+
+tr:hover{
+  background-color: #736fdc !important;
+  color: white;
+  transition: all 0.1s ease;
+}
+
+.apptid-row:hover{
+  cursor: pointer;
 }
 
 .table-header{
@@ -389,4 +400,5 @@ tr:nth-child(odd){
   box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.1);
   font-size: 12px;
   min-width: 10rem;
+  z-index: 96;
 }

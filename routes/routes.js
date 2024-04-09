@@ -38,11 +38,17 @@ router.get('/update/:query', DatabaseController.update_document);
  */
 router.get('/', AppointmentsController.getPage);
 
+/**
+ * Appointment Details Routes
+ */
+router.get('/details/:apptid', AppointmentsController.getDetails);
 
 /**
  * Dashboard Routes
  */
 
 router.get('/dashboard', DashboardController.getPage);
-//TODO: add error handling
+
+
+
 module.exports = router;

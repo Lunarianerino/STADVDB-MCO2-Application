@@ -49,7 +49,7 @@ $(document).ready(function() {
         data.forEach(function(appt) {
             var row = '<tr id="' + appt.apptid + '">';
             row += '<td><input type="checkbox" class="select-box"></td>';
-            row += '<td>' + appt.apptid + '</td>';
+            row += '<td class="apptid-row">' + appt.apptid + '</td>';
             row += '<td>' + appt.islandgroup + '</td>';
             row += '<td>' + appt.province + '</td>';
             row += '<td>' + appt.city + '</td>';
@@ -57,6 +57,21 @@ $(document).ready(function() {
             row += '<td>' + appt.apptstatus + '</td>';
             $('.appointments-table').append(row);
         });
+        var isDragging = false;
+
+        $('.apptid-row').mousedown(function() {
+            isDragging = false;
+        }).mousemove(function() {
+            isDragging = true;
+        }).mouseup(function() {
+            var wasDragging = isDragging;
+            isDragging = false;
+            if (!wasDragging) {
+                var apptid = $(this).html();
+                window.location.href = window.location.origin + '/details/' + apptid;
+            }
+        });
+
     });
 
 
@@ -112,7 +127,7 @@ $(document).ready(function() {
             data.forEach(function(appt) {
                 var row = '<tr id="' + appt.apptid + '">';
                 row += '<td><input type="checkbox" class="select-box"></td>';
-                row += '<td>' + appt.apptid + '</td>';
+                row += '<td class="apptid-row">' + appt.apptid + '</td>';
                 row += '<td>' + appt.islandgroup + '</td>';
                 row += '<td>' + appt.province + '</td>';
                 row += '<td>' + appt.city + '</td>';
@@ -121,8 +136,21 @@ $(document).ready(function() {
                 $('.appointments-table').append(row);
             });   
 
+            $('.apptid-row').mousedown(function() {
+                isDragging = false;
+            }).mousemove(function() {
+                isDragging = true;
+            }).mouseup(function() {
+                var wasDragging = isDragging;
+                isDragging = false;
+                if (!wasDragging) {
+                    var apptid = $(this).html();
+                    window.location.href = window.location.origin + '/details/' + apptid;
+                }
+            });
             
         });
         
     });
+
 });

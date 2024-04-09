@@ -9,21 +9,21 @@ $(document).ready(function() {
         try{
             if (statuses.CENTRAL_NODE == 200) {
                 addclasses('#CENTRAL_NODE', 'up');
-                removeClasses('#CENTRAL_NODE', 'down');
+                $('#CENTRAL_NODE').removeClass('down');
             } else {
                 addclasses('#CENTRAL_NODE', 'down');
             }
     
             if (statuses.LUZON_NODE == 200) {
                 addclasses('#LUZON_NODE', 'up');
-                removeClasses('#LUZON_NODE', 'down');
+                $('#LUZON_NODE').removeClass('down');
             } else {
                 addclasses('#LUZON_NODE', 'down');
             }
     
             if (statuses.VISMIN_NODE == 200) {
                 addclasses('#VISMIN_NODE', 'up');
-                removeClasses('#VISMIN_NODE', 'down');
+                $('#VISMIN_NODE').removeClass('down');
             } else {
                 addclasses('#VISMIN_NODE', 'down');
             }

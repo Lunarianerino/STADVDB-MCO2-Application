@@ -310,4 +310,16 @@ function generateUUID(callback) {
         callback(null, result[0].UUID); 
     });
 }
+
+api.getappt = function(req, res) {
+    var query = `SELECT * FROM ${process.env.DB_NAME}.appointments WHERE apptid = '${req.params.apptid}';`;
+    console.log(query);
+
+    con.query(query, function(err, result) {
+        if (err) {
+            return res.status(400).send({message: err});
+        }
+        return res.status(200).send(result);
+    });
+}
 module.exports = api;
