@@ -211,12 +211,7 @@ api.delete = function(req, res) {
                 });
             });
         }
-    });
-    con.query(query, function(err, result) {
-        if (err) {
-            return res.status(400).send({message: err});
-        }
-        return res.status(200).send({message: 'Successfully deleted'});
+        return; 
     });
 };
 
