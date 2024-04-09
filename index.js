@@ -34,8 +34,8 @@ const api_routes = require('./routes/api_routes.js');
     Environment variables
 */
 dotenv.config();
-const PORT = process.env.PORT || 3000;
-const HOSTNAME = process.env.HOSTNAME || 'localhost';
+const PORT = process.env[process.argv[2].toUpperCase() + '_PORT'] || 3000;
+const HOSTNAME = process.env[process.argv[2].toUpperCase()] || 'localhost';
 
 /*
     Express application
