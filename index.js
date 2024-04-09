@@ -1,3 +1,9 @@
+
+if (process.argv.length < 3) {
+    console.error('Usage: node index.js <node> (options: central_node, luzon_node, vismin_node)');
+    process.exit(1);
+}
+
 /**
  * @file index.js is the root file for this application.
  * @description This file is the entry point for this application.
