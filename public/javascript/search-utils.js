@@ -8,6 +8,7 @@ $(document).ready(function() {
         let apptid = $('.search-bar').val();
         let island = $('#island-filter').val();
         let status = $('#select-filter').val();
+        let isvirtual = $('#type-filter').val();
 
         let search_params = {};
         if (apptid != '') {
@@ -20,6 +21,10 @@ $(document).ready(function() {
 
         if (status != 'all') {
             search_params.apptstatus = status;
+        }
+
+        if (isvirtual != 'all') {
+            search_params.isvirtual = isvirtual;
         }
 
         if (Object.keys(search_params).length == 0) {
@@ -46,6 +51,7 @@ $(document).ready(function() {
         let apptid = url.searchParams.get('apptid');
         let island = url.searchParams.get('islandgroup');
         let status = url.searchParams.get('apptstatus');
+        let isvirtual = url.searchParams.get('isvirtual');
 
         if (apptid != null) {
             $('.search-bar').val(apptid);
@@ -57,6 +63,10 @@ $(document).ready(function() {
 
         if (status != null) {
             $('#select-filter').val(status);
+        }
+
+        if (isvirtual != null) {
+            $('#type-filter').val(isvirtual);
         }
 
         console.log(apptid, island, status);

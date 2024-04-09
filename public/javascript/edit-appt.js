@@ -40,10 +40,10 @@ $(document).ready(function() {
         console.log(data.isvirtual)
         switch(data.isvirtual){
             case 1:
-                $('#isvirtual').html('Virtual: <i id="isvirtual" class="fa-solid fa-check" style="color: #"></i>');
+                $('#isvirtual').html('<b>Virtual:</b> <i id="isvirtual" class="fa-solid fa-check" style="color: #"></i>');
                 break;
             case 0:
-                $('#isvirtual').html('Virtual: <i id="isvirtual" class="fa-solid fa-times"></i>');
+                $('#isvirtual').html('<b>Virtual:</b> <i id="isvirtual" class="fa-solid fa-times"></i>');
                 break;
         }
     });
@@ -66,6 +66,18 @@ $(document).ready(function() {
             $(this).css('color', 'black');
             $(this).css('font-weight', 'normal');
         }
+
+        /**
+         * Logic for showing edit-buttons
+         */
+        if (Object.keys(changedFields).length > 0) {
+            $('.edit-button').fadeIn();
+            $('.cancel-button').fadeIn();
+        } else{
+            $('.edit-button').fadeOut();
+            $('.cancel-button').fadeOut();
+        }
+
     });
     
 
@@ -80,6 +92,8 @@ $(document).ready(function() {
             $('#' + key).css('font-weight', 'normal');
         }
         changedFields = {};
+        $('.edit-button').fadeOut();
+        $('.cancel-button').fadeOut();
     });
 
     /**
@@ -93,6 +107,11 @@ $(document).ready(function() {
         };
 
         console.log(update_params);
+
+        //regex to add \ to the ' in the string
+        for (key in update_params) {
+            update_params[key] = update_params[key].replace(/'/g, "\\'");
+        }
 
         $.get('/api/update', update_params, function(data, status) {
             console.log(status);

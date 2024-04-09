@@ -14,6 +14,7 @@ $(document).ready(function() {
     let island = url.searchParams.get('islandgroup');
     let status_filter = url.searchParams.get('apptstatus');
     let apptid = url.searchParams.get('apptid');
+    let isvirtual = url.searchParams.get('isvirtual');
 
     if (island != null) {
         load_params.islandgroup = island;
@@ -25,6 +26,10 @@ $(document).ready(function() {
 
     if (apptid != null) {
         load_params.apptid = apptid;
+    }
+
+    if (isvirtual != null) {
+        load_params.isvirtual = isvirtual;
     }
 
     $.get('/api/find', load_params, function(data, status) {

@@ -23,81 +23,80 @@
                 <h2 id="apptid"><%= contents.apptid%></h2>
                 <table class="table">
                         <tr>
-                            <th>Appointment Details</th>
-                            <th>Status Summary</th>
+                            <th colspan="2">Appointment Details</th>
+                            <th colspan="2">Status Summary</th>
                         </tr>
                         <tr>
-                            <td>
+                            <td colspan="2">
                                 <span style="font-weight:bold;">Doctor ID / Name</span>
                                 <div class="editable" contenteditable='true' id="doctorid"></div>
                             </td>
-                            <td>
+                            <td >
+                                <span style="font-weight:bold;">Type</span>
+                                <div class="editable" contenteditable='true' id="appttype"></div>
+                            </td>
+                            <td class="uneditable" id="isvirtual"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <span style="font-weight:bold;">Clinic ID / Name</span>
+                                <div class="editable" contenteditable='true' id="clinicid"></div>
+                            </td>
+                            <td colspan="2">
                                 <span style="font-weight:bold;">Appointment Status</span>
                                 <div class="editable" contenteditable='true' id="apptstatus"></div>
                             </td>
                         </tr>
                         <tr>
-                            <td>
-                                <span style="font-weight:bold;">Clinic ID / Name</span>
-                                <div class="editable" contenteditable='true' id="clinicid"></div>
-                            </td>
-                            <td>
-                                <span style="font-weight:bold;">Start Time</span>
-                                <div class="editable" contenteditable='true' id="starttime"></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
+                            <td colspan="2">
                                 <span style="font-weight:bold;">Patient ID</span>
                                 <div class="uneditable" id="pxid"></div>
                             </td>
-                            <td>
+                            <td colspan="1">
+                                <span style="font-weight:bold;">Start Time</span>
+                                <div class="uneditable" id="starttime"></div>
+                            </td>
+                            <td colspan="1">
                                 <span style="font-weight:bold;">End Time</span>
-                                <div class="editable" contenteditable='true' id="endtime"></div>
+                                <div class="uneditable" id="endtime"></div>
                             </td>
                         </tr>
                         <tr>
-                            <td></td>
-                            <td>
-                                <span style="font-weight:bold;">Type</span>
-                                <div class="editable" contenteditable='true' id="appttype"></div>
-                            </td>
+                            <td colspan="2"></td>
+                            
                         </tr>
                         <tr>
-                            <td></td>
-                            <td></td>
+                            <td colspan="2"></td>
+                            <td colspan="2"></td>
                         </tr>
 
-                        <th colspan="2">
+                        <th colspan="4">
                             Location Details
                         </th>
                         <tr>
-                            <td class="uneditable" id="isvirtual"></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <span style="font-weight:bold;">Hospital</span>
-                                <div class="editable" contenteditable='true' id="hospital"></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
+                            <td colspan="2">
                                 <span style="font-weight:bold;">Island Group</span>
                                 <div class="uneditable" id="islandgroup"></div>
                             </td>
-                            <td>
+                            <td colspan="2">
                                 <span style="font-weight:bold;">Region Name</span>
                                 <div class="uneditable" id="region_name"></div>
                             </td>
                         </tr>
                         <tr>
-                            <td>
+                            <td colspan="2">
                                 <span style="font-weight:bold;">Province</span>
                                 <div class="uneditable" id="province"></div>
                             </td>
-                            <td>
+                            <td colspan="2">
                                 <span style="font-weight:bold;">City</span>
                                 <div class="uneditable" id="city"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <span style="font-weight:bold;">Hospital</span>
+                                <div class="editable" contenteditable='true' id="hospital"></div>
                             </td>
                         </tr>
                 </table>
@@ -107,9 +106,8 @@
 
         <!-- edit and cancel buttons-->
         <div class="edit-buttons">
-            <button class="cancel-button"><i class="fa-solid fa-rotate-left"></i></button>
-            <button class="edit-button"><i class="fa-regular fa-pen-to-square"></i></button>
-            
+            <button class="cancel-button" hidden><i class="fa-solid fa-rotate-left"></i></button>
+            <button class="edit-button" hidden><i class="fa-regular fa-pen-to-square"></i></button>
         </div>
         <script src="../javascript/edit-appt.js" async defer></script>
     </body>
