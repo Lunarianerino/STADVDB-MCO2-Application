@@ -96,7 +96,7 @@ api.update = async function(req, res) {
     var update_values = {};
 
     for(key in req.query) {
-        if (key != 'apptid_arr') {
+        if (key != 'apptid_arr' && key != 'replicate') {
             update_values[key] = req.query[key];
             query += key + " = '" + req.query[key] + "', ";
             flag = true;
@@ -112,31 +112,30 @@ api.update = async function(req, res) {
 
         generateUUID(function(err, transaction_id) {
             if (err) {
-                return res.status(400).send({message: err});
+                return res.status(400).send({message: "An error occured while attempting to process the request, please try again"});
             }
-            if (logs.log(`${transaction_id} START`)) {
+            if (logs.log(`${transaction_id} START UPDATE`)) {
                 //Transaction officially starts here
                 console.log(`Transaction ${transaction_id} started`);
 
                 //read(X)
-                con.query(`SELECT * FROM ${process.env.DB_NAME}.appointments WHERE apptid IN (${apptid_arr.join()});`, function(err, insert_result) {
+                con.query(`SELECT * FROM ${process.env.DB_NAME}.appointments WHERE apptid IN (${apptid_arr.join()});`, function(err, read_result) {
                     if (err) {
                         return res.status(400).send({message: 'An error occured while reading from the database, please try the inputs again'});
                     }
 
                     //write(X)
-                    for (let i = 0; i < insert_result.length; i++) {
+                    for (let i = 0; i < read_result.length; i++) {
                         for (key in update_values) {
-                            insert_result[i][key] = update_values[key];
+                            read_result[i][key] = update_values[key];
                         }
 
-                        let values = Object.values(insert_result[i]);
-                        logs.log(`${transaction_id}, ${values.join()}`);
+                        let values = Object.values(read_result[i]);
+                        logs.log(`${transaction_id} ${values.join()}`);
                     }
 
                     //partial commit
                     logs.log(`${transaction_id} COMMIT`);
-                    console.log(query);
                     
                     //actual commit
                     con.query(query, function(err, result){
@@ -146,20 +145,13 @@ api.update = async function(req, res) {
                         
                         res.status(200).send({message: 'Successfully updated'});
 
-                        if (process.argv[2] == 'central_node') {
-                            //stuff
-                        } else if (process.argv[2] == 'luzon_node') {
-                            axios.get(`http://${process.env.DB_FULL}:80${decodeURIComponent(req.originalUrl)}`).then((response) => {
-                                console.log(response.data);
-                            }).catch((error) => {
-                                logs.log(`${Date.now()} CENTRAL_NODE DOWN`);
-                                console.error(error);
-                            });
-                        } else if (process.argv[2] == 'vismin_node') {
-                            //stuff
+                        //replication
+                        if (req.query.replicate == undefined){
+                            logs.replicate(decodeURIComponent(req.originalUrl));
                         }
-
-                        logs.log(`${Date.now()} CHECKPOINT`);
+                        
+                        logs.log(`CHECKPOINT ${Date.now()}`);
+                        return;
                     });
                 });
             } else {
@@ -167,14 +159,59 @@ api.update = async function(req, res) {
             }
         });
     }
+    return;
 };
 
 api.delete = function(req, res) {
     var apptid_arr = req.query.apptid_arr;
-    apptid_arr=apptid_arr.replace(/\[|\]/g,'').split(',');
+    try {
+        apptid_arr=apptid_arr.replace(/\[|\]/g,'').split(',');
+    } catch (err) {
+        return res.status(400).send({message: 'Invalid apptid_arr'});
+    }
     var query = `DELETE FROM ${process.env.DB_NAME}.appointments WHERE apptid IN (${apptid_arr.join()});`;
     console.log(query);
 
+    generateUUID(function(err, transaction_id) {
+        if (err) {
+            return res.status(400).send({message: "An error occured while attempting to process the request, please try again"});
+        }
+
+        if (logs.log(`${transaction_id} START DELETE`)) {
+            console.log(`Transaction ${transaction_id} started`);
+
+            //read(X)
+            con.query(`SELECT * FROM ${process.env.DB_NAME}.appointments WHERE apptid IN (${apptid_arr.join()}); `, function(err, read_result) {
+                if(err) {
+                    return res.status(400).send({message: 'An error occured while reading from the database, please try the inputs again'});
+                }
+
+                //write(X)
+                for (let i = 0; i < read_result.length; i++) {
+                    logs.log(`${transaction_id} ${Object.values(read_result[i]).join()}`);
+                }
+
+                //partial commit
+                logs.log(`${transaction_id} COMMIT`);
+
+                //actual commit
+                con.query(query, function(err, result){
+                    if (err) {
+                        return res.status(400).send({message: 'An error occured while deleting the database, please run the redo function'});
+                    }
+
+                    res.status(200).send({message: 'Successfully deleted'});
+
+                    //replication
+                    if (req.query.replicate == undefined){
+                        logs.replicate(decodeURIComponent(req.originalUrl));
+                    }
+                    logs.log(`CHECKPOINT ${Date.now()}`);
+                    return;
+                });
+            });
+        }
+    });
     con.query(query, function(err, result) {
         if (err) {
             return res.status(400).send({message: err});
@@ -183,6 +220,88 @@ api.delete = function(req, res) {
     });
 };
 
+api.insert = function(req, res) {
+    //var query = `INSERT INTO ${process.env.DB_NAME}.appointments ()`;
+    console.log(api.columns);
+    var query = `INSERT INTO ${process.env.DB_NAME}.appointments (${api.columns.join()}) VALUES (`;
+
+    generateUUID(function(err, transaction_id) {
+        generateUUID(function(err, apptid) {
+            if (err) {
+                return res.status(400).send({message: "An error occured while attempting to process the request, please try again"});
+            }
+
+            if (logs.log(`${transaction_id} START INSERT`)) {
+                console.log(`Transaction ${transaction_id} started`);
+                query += `'${apptid}', `;
+                let values = [apptid];
+                for (let i = 0; i < api.columns.length; i++) {
+                    if (api.columns[i] == 'apptid')
+                    {
+                        console.log('apptid')
+                        continue;
+                    }
+                    if (req.query[api.columns[i]] != undefined) {
+                        query += `'${req.query[api.columns[i]]}', `;
+                        values.push(req.query[api.columns[i]]);
+                    }
+                    else {
+                        query += 'NULL, ';
+                        values.push(null);
+                    };
+                }
+                query = query.slice(0, -2) + ');';
+
+                logs.log(`${transaction_id} ${values.join()}`);
+                logs.log(`${transaction_id} COMMIT`);
+
+                con.query(query, function(err, result) {
+                    if (err) {
+                        return res.status(400).send({message: 'An error occured while inserting into the database, please run the redo function', error: err});
+                    }
+                    res.status(200).send({message: 'Successfully inserted'});
+
+                    //replication
+                    if (req.query.replicate == undefined){
+                        logs.replicate(decodeURIComponent(req.originalUrl));
+                    }
+                    logs.log(`CHECKPOINT ${Date.now()}`);
+                    return;
+                });
+            }
+        });
+    });
+
+
+};
+
+api.startup = function(req, res) {
+    //ask for logs from other nodes
+    // if there are discrepancies, redo
+    console.log("Starting up...");
+
+    con.query(`SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='${process.env.DB_NAME}' AND TABLE_NAME='appointments';`, function(err, result) {
+        if (err) {
+            return res.status(400).send({message: err});
+        }
+        var columns = [];
+        for (let i = 0; i < result.length; i++) {
+            columns.push(result[i].COLUMN_NAME);
+        }
+
+        //pray this finishes before the set up
+        api.columns = columns;
+    });
+    
+    console.log("Startup complete");
+    logs.perform_transactions_after_checkpoint();
+    
+    // const readStream = fs_reverse('logs.txt', {});
+
+    // readStream.on('data', function (line) {
+    //     console.log(line.toString());
+    // }); 
+}
 function generateUUID(callback) {
     con.query(`SELECT REPLACE(UUID(), "-", "") AS UUID`, function(err, result) {
         if (err) {

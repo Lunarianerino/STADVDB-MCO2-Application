@@ -15,9 +15,7 @@ const mysql = require('mysql');
 
 const api = require('../api/api.js');
 
-api.connect(function() {
-    console.info(`Connected to the database`);
-});
+api.startup();
 const router = express.Router();
 
 router.get('/status', api.status);
@@ -30,6 +28,7 @@ router.get('/update', api.update);
 
 router.get('/delete', api.delete);
 
+router.get('/insert', api.insert);
 
 
 //TODO: add error handling
