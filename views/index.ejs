@@ -14,28 +14,13 @@
     <script src="./javascript/search-utils.js"></script>
     <script src="./javascript/operations.js"></script>
 
-    <title>SeriousMD Tools | Appointments</title>
+    <title>SeriousMD | Appointments</title>
 </head>
 <body>
     <%- include('partials/navbar') %>
     
     <div class="table-container">
         <h1>SeriousMD Appointments</h1>
-        <h2>Server Status <i class="fa-solid fa-server"></i></h2>
-        <div class="servers">
-            <div class="server" id="CENTRAL_NODE">
-                <div class="server-icon"></div>
-                <p>Centralized</p>
-            </div>
-            <div class="server" id="LUZON_NODE">
-                <div class="server-icon"></div>
-                <p>Luzon</p>
-            </div>
-            <div class="server" id="VISMIN_NODE">
-                <div class="server-icon"></div>
-                <p>Visayas / Mindanao</p>
-            </div>
-        </div>
         <div class="search-utils">
             <form class="search-utils-form">
                 <div class="search-utils-container">
@@ -110,5 +95,8 @@
             <button class="delete-button form-button" id="delete-button"><i class="fa-solid fa-trash"></i></button>
         </div>
     </div>
+
+    <!-- Dev Tools Popup on the TOP right-->
+    <%- include ('partials/dev-tools') %>
 </body>
 </html>

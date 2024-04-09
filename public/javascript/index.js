@@ -6,24 +6,34 @@ $(document).ready(function() {
     $.get('/api/checkNodes', function(statuses) {
         console.log('Node Status Checked');
         console.log(statuses);
-
-        if (statuses.CENTRAL_NODE == 200) {
-            addclasses('#CENTRAL_NODE', 'up');
-        } else {
+        try{
+            if (statuses.CENTRAL_NODE == 200) {
+                addclasses('#CENTRAL_NODE', 'up');
+                removeClasses('#CENTRAL_NODE', 'down');
+            } else {
+                addclasses('#CENTRAL_NODE', 'down');
+            }
+    
+            if (statuses.LUZON_NODE == 200) {
+                addclasses('#LUZON_NODE', 'up');
+                removeClasses('#LUZON_NODE', 'down');
+            } else {
+                addclasses('#LUZON_NODE', 'down');
+            }
+    
+            if (statuses.VISMIN_NODE == 200) {
+                addclasses('#VISMIN_NODE', 'up');
+                removeClasses('#VISMIN_NODE', 'down');
+            } else {
+                addclasses('#VISMIN_NODE', 'down');
+            }
+        } catch (err) {
+            console.log(err);
             addclasses('#CENTRAL_NODE', 'down');
-        }
-
-        if (statuses.LUZON_NODE == 200) {
-            addclasses('#LUZON_NODE', 'up');
-        } else {
             addclasses('#LUZON_NODE', 'down');
-        }
-
-        if (statuses.VISMIN_NODE == 200) {
-            addclasses('#VISMIN_NODE', 'up');
-        } else {
             addclasses('#VISMIN_NODE', 'down');
         }
+        
     })
 
     /**
@@ -122,6 +132,25 @@ $(document).ready(function() {
         $('html, body').animate({scrollTop: 0}, 800);
     });
 
+
+    /**
+     * Logic for dev-tools-popup
+     */
+    $('.dev-tools-popup').click(function() {
+        //get if attribute is open
+        var isOpen = $(this).attr('class').includes('open');
+        //set class to open
+        if (isOpen) {
+            $(this).removeClass('open');
+            $('.dev-tools-contents').hide();
+            $('#arrow-icon').attr('class', 'fa-solid fa-arrow-up');
+            return; 
+        } else {
+            $(this).addClass('open');
+            $('.dev-tools-contents').show();
+            $('#arrow-icon').attr('class', 'fa-solid fa-arrow-down');
+        }
+    });
 });
 
 function addclasses(status, type) {
