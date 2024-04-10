@@ -2,24 +2,11 @@ $(document).ready(function() {
     /**
      * Logic for displaying which port is shown
      */
-
-    let url = location.port;
-
-
-    switch (url) {
-        case 20213:
-            $("#current-node").text('CENTRAL_NODE');
-            break;
-        case 20214:
-            $("#current-node").text('LUZON_NODE');
-            break;
-        case 20215:
-            $("#current-node").text('VISMIN_NODE');
-            break;
-        default:
-            $("#current-node").text('CENTRAL_NODE');
-            break;
-    }
+    $.get('/api/whereAmI', function(data, status) {
+        console.log(data);
+        console.log(status);
+        $('#current-node').text(data.toUpperCase())
+    });
 
     /**
      * Logic for checking all node statuses
