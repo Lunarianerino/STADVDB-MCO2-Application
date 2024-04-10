@@ -34,5 +34,7 @@ router.get('/getappt/:apptid', api.getappt);
 
 router.get('/getlogs', api.getlogs);
 
+router.get('/whereAmI', api.whereAmI);
+
 //TODO: add error handling
 module.exports = router;
