@@ -327,7 +327,7 @@ logs.process_external_logs = function(logs_str, callback) {
             callback();
         } //just in case
         
-        console.log("Performing Recovery");
+        //console.log("Performing Recovery");
         for (let i = 0; i < keys.length; i++) {
             let transaction = transactions[keys[i]];
             if (transaction.action != null) {
