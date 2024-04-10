@@ -61,7 +61,8 @@ api.find = async function(req, res) {
     var offset = req.body.offset || 0;
     var where_clause = "WHERE ";
     var flag = false;
-
+    var islandgroup = req.query.islandgroup;
+    var island_node_match = false;
     for (key in req.query) {
         if (key != 'limit' && key != 'offset') {
             where_clause += key + " = '" + req.query[key] + "' AND ";
@@ -75,45 +76,37 @@ api.find = async function(req, res) {
     where_clause += " LIMIT " + limit + " OFFSET " + offset;
 
     var query = `SELECT * FROM ${process.env.DB_NAME}.appointments ${where_clause};`;
+    if (islandgroup == 'Luzon' && (process.argv[2] == 'luzon_node' || process.argv[2] == 'central_node')) {
+        island_node_match = true;
+    }
+    if (islandgroup == 'Visayas' && process.argv[2] == 'vismin_node' || process.argv[2] == 'central_node') {
+        island_node_match = true;
+    }
 
-    con.query(query, function(err, result) {
-        if (err){
-            return res.status(400).send({message: err});
-        };
-
-        
-        if (process.argv[2] != 'central_node') {
-            limit = Math.floor(limit / 2);
-            offset = Math.floor(offset / 2);
-        }
-
+    if (island_node_match) {
+        con.query(query, function(err, result) {
+            if (err) {
+                return res.status(400).send({message: err});
+            }
+            return res.status(200).send(result);
+        });
+    } else {
         if (process.argv[2] == 'luzon_node') {
             pools.vismin_node.query(query, function(err, vismin_result) {
                 if (err) {
-                    //send the others anyways
-                    return res.status(200).send(result);
+                    return res.status(400).send({message: err});
                 }
-                //remove the first half
-                result = result.slice(Math.floor(result.length / 2));
-                result = result.concat(vismin_result);
-
-                return res.status(200).send(result);
-            });
-        } else if (process.argv[2] == 'vismin_node') {
-            pools.luzon_node.query(query, function(err, luzon_result) {
-                if (err) {
-                    //send the others anyways
-                    return res.status(200).send(result);
-                }
-                result = result.slice(Math.floor(result.length / 2));
-                result = result.concat(luzon_result);
-
-                return res.status(200).send(result);
+                return res.status(200).send(vismin_result);
             });
         } else {
-            return res.status(200).send(result);
+            pools.luzon_node.query(query, function(err, luzon_result) {
+                if (err) {
+                    return res.status(400).send({message: err});
+                }
+                return res.status(200).send(luzon_result);
+            });
         }
-    });
+    }
 };
 
 api.update = async function(req, res) {
