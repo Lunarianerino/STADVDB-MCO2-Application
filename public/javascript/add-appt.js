@@ -1,61 +1,6 @@
 $(document).ready(function() {
-    console.info('Hello World!')
-    /**
-     * Logic for detecting change in the table
-     */
-
-    /**
-     * Ajax Call for obtaining the appointment details
-     */
-    let initial_data = {};
-    let apptid = $('#apptid').text();
-    console.log("HERE IS THE APPTID: " + apptid)
-
-    $.get('/api/getappt/' + apptid, function(data, status) {
-        console.log(data);
-        initial_data = data[0];
-        data = data[0];
-        console.log(status);
-        if (status != 'success') {
-            alert('Error loading appointment details');
-            return;
-        }
-
-        //fill the fields with the data
-        $('#doctorid').text(data.doctorid);
-        $('#clinicid').text(data.clinicid);
-        $('#pxid').text(data.pxid);
-        $('#apptstatus').text(data.apptstatus);
-
-        //parse the dates
-        const startdate = new Date(data.starttime);
-        const enddate = new Date(data.endtime);
-
-        $('#starttime').val(convertDateTimeLocal(startdate));
-        $('#endtime').val(convertDateTimeLocal(enddate));
-        $('#appttype').text(data.appttype);
-        $('#hospital').text(data.hospital);
-        $('#islandgroup').text(data.islandgroup);
-        $('#region_name').text(data.region_name);
-        $('#province').text(data.province);
-        $('#city').text(data.city);
-
-
-
-        console.log(data.isvirtual)
-        switch(data.isvirtual){
-            case 1:
-                $('#isvirtual').html('<b>Virtual:</b> <i id="isvirtual" class="fa-solid fa-check" style="color: #"></i>');
-                break;
-            case 0:
-                $('#isvirtual').html('<b>Virtual:</b> <i id="isvirtual" class="fa-solid fa-times"></i>');
-                break;
-        }
-    });
-
-
+    var initial_data = {};
     var changedFields = {};
-
     $('.editable[contenteditable=true]').on('input', function() {
         //check the value of the field, if different from data.x, add to changedFields
         let field = $(this).attr('id');
@@ -82,7 +27,9 @@ $(document).ready(function() {
             $('.edit-button').fadeOut();
             $('.cancel-button').fadeOut();
         }
-
+        console.log(changedFields)
+        //reset color of edit-button to #736fdc
+        $('.edit-button').css('background-color', '#736fdc');
     });
 
     /**
@@ -115,6 +62,9 @@ $(document).ready(function() {
             $('.edit-button').fadeOut();
             $('.cancel-button').fadeOut();
         }
+
+        console.log(changedFields)
+        $('.edit-button').css('background-color', '#736fdc');
     });
 
     $('#endtime').on('input', function() {
@@ -131,6 +81,7 @@ $(document).ready(function() {
             delete changedFields[field];
             $(this).css('color', 'black');
             $(this).css('font-weight', 'normal');
+            
         }
 
         /**
@@ -143,67 +94,97 @@ $(document).ready(function() {
             $('.edit-button').fadeOut();
             $('.cancel-button').fadeOut();
         }
+        console.log(changedFields)
+        $('.edit-button').css('background-color', '#736fdc');
+        
+    });
+
+    /** 
+     * Logic for isvirtual checkbox
+    */
+    $('#isvirtual').on('click', function() {
+        let value = $(this).is(':checked');
+
+        if (value != initial_data['isvirtual']) {
+            changedFields['isvirtual'] = value;
+        } else {
+            delete changedFields['isvirtual'];
+        }
+        console.log(changedFields)
+        $('.edit-button').css('background-color', '#736fdc');
+    });
+
+    /**
+     * Logic for select boxes
+     */
+
+    var select_boxes = [];
+    //append the select boxes to the select_boxes array
+    $('select').each(function() {
+        select_boxes.push($(this));
+    });
+
+    console.log(select_boxes)
+
+    //for each select box add the logic for detecting changes
+    select_boxes.forEach(function(select_box) {
+        select_box.on('change', function() {
+            let value = $(this).val();
+            let field = $(this).attr('id');
+
+            if (value != initial_data[field]) {
+                changedFields[field] = value;
+                $(this).css('color', '#736fdc');
+                $(this).css('font-weight', 'bold');
+            } else {
+                delete changedFields[field];
+                $(this).css('color', 'black');
+                $(this).css('font-weight', 'normal');
+            }
+            console.log(changedFields)
+            $('.edit-button').css('background-color', '#736fdc');
+        });
     });
 
     /**
      * Logic for resetting appointment fields
      */
     $('.cancel-button').on('click', function() {
-        //reset the fields
-        for (key in changedFields) {
-            $('#' + key).text(initial_data[key]);
-            $('#' + key).css('color', 'black');
-            $('#' + key).css('font-weight', 'normal');
-            //reset values for dates
-            if (key == 'starttime' || key == 'endtime') {
-                $('#' + key).val(convertDateTimeLocal(new Date(initial_data[key])));
-            }
-        }
-        changedFields = {};
-        $('.edit-button').fadeOut();
-        $('.cancel-button').fadeOut();
+        //reset the fields by reloading the page
+        location.reload();
     });
 
-    /**
-     * Logic for editing appointment fields
-     */
+
     $('.edit-button').on('click', function() {
-        //send the changed fields to the server
-        let update_params = {
-            apptid_arr: JSON.stringify([apptid]),
-            ...changedFields
-        };
-
-        console.log(update_params);
-
-        //regex to add \ to the ' in the string
-        for (key in update_params) {
-            update_params[key] = update_params[key].replace(/'/g, "\\'");
+        //disable if no changes and if changedFields.length > 15
+        console.log('test')
+        if (Object.keys(changedFields).length == 0) {
+            alert('No changes detected');
+            return;
         }
 
-        $.get('/api/update', update_params, function(data, status) {
+        if (Object.keys(changedFields).length < 14) {
+            alert('Please fill in all the fields');
+            return;
+        }
+        //change value of isvirtual to 0 or 1
+        if (changedFields['isvirtual'] == true) {
+            changedFields['isvirtual'] = 1;
+        } else {
+            changedFields['isvirtual'] = 0;
+        }
+        /**
+         * Logic for sending the data to the server
+         */
+        $.get('/api/insert', changedFields, function(data, status) {
             console.log(status);
             console.log(data);
-
             if (status != 'success') {
-                alert('Error updating appointment details');
+                alert('Error adding appointment');
                 return;
             }
-
-            //success message
-            alert('Appointment updated successfully');
-            location.reload();
+            alert('Appointment added successfully');
+            window.location.href='/';
         });
-
-    })
-
-    
-
-
-    
-
-});
-
-function convertDateTimeLocal(date){
-    return date.toISOString().slice(0, 16);
-}
+    });
+})  
