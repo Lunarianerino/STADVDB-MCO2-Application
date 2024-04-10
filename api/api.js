@@ -84,26 +84,46 @@ api.find = async function(req, res) {
     }
 
     if (island_node_match) {
-        con.query(query, function(err, result) {
+        con.getConnection(function(err, connection) {
             if (err) {
                 return res.status(400).send({message: err});
             }
-            return res.status(200).send(result);
+            con.query(query, function(err, result) {
+                connection.release();
+                if (err) {
+                    return res.status(400).send({message: err});
+                }
+                return res.status(200).send(result);
+            });
+            
         });
     } else {
         if (process.argv[2] == 'luzon_node') {
-            pools.vismin_node.query(query, function(err, vismin_result) {
+            pools.vismin_node.getConnection(function(err, connection) {
                 if (err) {
                     return res.status(400).send({message: err});
                 }
-                return res.status(200).send(vismin_result);
+                pools.vismin_node.query(query, function(err, vismin_result) {
+                    connection.release();
+                    if (err) {
+                        return res.status(400).send({message: err});
+                    }
+                    return res.status(200).send(vismin_result);
+                });
             });
         } else {
-            pools.luzon_node.query(query, function(err, luzon_result) {
+            pools.luzon_node.getConnection(function(err, connection) {
                 if (err) {
                     return res.status(400).send({message: err});
                 }
-                return res.status(200).send(luzon_result);
+
+                pools.luzon_node.query(query, function(err, luzon_result) {
+                    connection.release();
+                    if (err) {
+                        return res.status(400).send({message: err});
+                    }
+                    return res.status(200).send(luzon_result);
+                });
             });
         }
     }
