@@ -25,7 +25,8 @@ logs.redo_transaction = function(transaction, callback){
     for (let i = 0; i < transaction.V.length; i++) {
         var query = "";
         let details = transaction.V[i].split(',');
-
+        var islandgroup = null;
+        var island_node_match = false;
         for(let i = 0; i < details.length; i++) {
             if (details[i] == "") {
                 details[i] = "NULL";
@@ -38,6 +39,10 @@ logs.redo_transaction = function(transaction, callback){
             
             for (let i = 0; i < pools.db_columns.length; i++) {
                 //if (pools.db_columns[i] == 'apptid') continue;
+                if (pools.db_columns[i] == 'islandgroup') {
+                    islandgroup = details[i];
+                }
+
                 if (details[i] == "NULL") {
                     query += `${details[i]}, `;
                 } else {
@@ -62,16 +67,26 @@ logs.redo_transaction = function(transaction, callback){
         }
 
         //console.log(query);
-
-        con.query(query, function(err, result) {
-            if (err) {
-                console.error(err);
-            }
-            console.log(`Transaction ${transaction.action} for ${details[0]} completed`);
-            if (i == transaction.V.length - 1) {
-                callback();
-            }
-        });
+        if (islandgroup == 'Luzon' && process.argv[2] == 'luzon_node') {
+            island_node_match = true;
+        }
+        if (islandgroup == 'Visayas' && process.argv[2] == 'vismin_node' || islandgroup == 'Mindanao' && process.argv[2] == 'vismin_node') {
+            island_node_match = true;
+        }
+        if (process.argv[2] == 'central_node') {
+            island_node_match = true;
+        }
+        if (island_node_match) {
+            con.query(query, function(err, result) {
+                if (err) {
+                    console.error(err);
+                }
+                console.log(`Transaction ${transaction.action} for ${details[0]} completed`);
+                if (i == transaction.V.length - 1) {
+                    callback();
+                }
+            });
+        }
     }
 }
 
@@ -188,7 +203,27 @@ logs.perform_transactions_from_crashpoint = function(callback) {
                 callback();
             });
         }).catch((error) => {
-            console.log("Central node is down, no logs to process");
+            console.log("Central node is down, logging from the other node");
+            var ip = null;
+            var port = null;
+            if (process.argv[2] == "luzon_node") {
+                ip = process.env.VISMIN_NODE;
+                port = process.env.VISMIN_NODE_PORT;
+            } else {
+                ip = process.env.LUZON_NODE;
+                port = process.env.LUZON_NODE_PORT;
+            }
+
+            axios.get(`http://${ip}:${port}/api/getlogs`).then((response) => {
+                logs.process_external_logs(response.data, function(){
+                    callback();
+                });
+            }).catch((error) => {
+                console.log("Both nodes are down, no logs to process");
+                callback();
+                //console.error(error);
+            });
+            
             callback();
             //console.error(error);
         });

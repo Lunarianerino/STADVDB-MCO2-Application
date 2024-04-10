@@ -81,7 +81,9 @@ api.find = async function(req, res) {
     }
     if (islandgroup == 'Visayas' && process.argv[2] == 'vismin_node' || islandgroup == 'Mindanao' && process.argv[2] == 'vismin_node' || process.argv[2] == 'central_node') {
         island_node_match = true;
-        console.log("Island node match")
+    }
+    if (islandgroup == undefined){
+        island_node_match = true;
     }
     console.log(query);
     if (island_node_match) {
@@ -290,6 +292,18 @@ api.insert = function(req, res) {
     //var query = `INSERT INTO ${process.env.DB_NAME}.appointments ()`;
     console.log(pools.db_columns);
     var query = `INSERT INTO ${process.env.DB_NAME}.appointments (${pools.db_columns.join()}) VALUES (`;
+    var islandgroup = req.query.islandgroup;
+    var island_node_match = false;
+
+    if (islandgroup == 'Luzon' && (process.argv[2] == 'luzon_node' || process.argv[2] == 'central_node')) {
+        island_node_match = true;
+    }
+    if (islandgroup == 'Visayas' && process.argv[2] == 'vismin_node' || islandgroup == 'Mindanao' && process.argv[2] == 'vismin_node' || process.argv[2] == 'central_node') {
+        island_node_match = true;
+    }
+    if (islandgroup == undefined){
+        island_node_match = true;
+    }
 
     generateUUID(function(err, transaction_id) {
         generateUUID(function(err, apptid) {
@@ -321,19 +335,25 @@ api.insert = function(req, res) {
                 logs.log(`${transaction_id} ${values.join()}`);
                 logs.log(`${transaction_id} COMMIT`);
 
-                con.query(query, function(err, result) {
-                    if (err) {
-                        return res.status(400).send({message: 'An error occured while inserting into the database, please run the redo function', error: err});
-                    }
-                    res.status(200).send({message: 'Successfully inserted'});
+                if (island_node_match) {
+                    con.query(query, function(err, result) {
+                        if (err) {
+                            return res.status(400).send({message: 'An error occured while inserting into the database, please run the redo function', error: err});
+                        }
+                        res.status(200).send({message: 'Successfully inserted'});
 
-                    //replication
-                    if (req.query.replicate == undefined){
+                        //replication
+                        if (req.query.replicate == undefined){
+                            logs.replicate(decodeURIComponent(req.originalUrl));
+                        }
+                        logs.log(`CHECKPOINT ${Date.now()}`);
+                        return;
+                    });
+                } else {
+                    if (req.query.replicate == undefined) {
                         logs.replicate(decodeURIComponent(req.originalUrl));
                     }
-                    logs.log(`CHECKPOINT ${Date.now()}`);
-                    return;
-                });
+                }
             }
         });
     });
@@ -371,12 +391,50 @@ function generateUUID(callback) {
 api.getappt = function(req, res) {
     var query = `SELECT * FROM ${process.env.DB_NAME}.appointments WHERE apptid = '${req.params.apptid}';`;
     console.log(query);
+    var query_result = [];
 
     con.query(query, function(err, result) {
         if (err) {
             return res.status(400).send({message: err});
         }
-        return res.status(200).send(result);
+
+        if (result.length == 0) {
+            pools.central_node.query(query, function(err, central_result) {
+                if (err) {
+                    return res.status(400).send({message: err});
+                }
+
+                if (central_result.length == 0) {
+                    if (process.argv[2] == 'luzon_node') {
+                        pools.vismin_node.query(query, function(err, vismin_result) {
+                            if (err) {
+                                return res.status(400).send({message: err});
+                            }
+
+                            if (vismin_result.length == 0) {
+                                return res.status(400).send({message: 'No such appointment found'});
+                            }
+                            return res.status(200).send(vismin_result);
+                        });
+                    } else {
+                        pools.luzon_node.query(query, function(err, luzon_result) {
+                            if (err) {
+                                return res.status(400).send({message: err});
+                            }
+
+                            if (luzon_result.length == 0) {
+                                return res.status(400).send({message: 'No such appointment found'});
+                            }
+                            return res.status(200).send(luzon_result);
+                        });
+                    }
+                } else {
+                    return res.status(200).send(central_result);
+                }
+            });
+        } else {
+            return res.status(200).send(result);
+        }
     });
 }
 
