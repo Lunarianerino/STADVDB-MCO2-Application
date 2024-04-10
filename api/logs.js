@@ -22,14 +22,16 @@ logs.log = function(log) {
 }
 
 logs.redo_transaction = function(transaction, callback){
+    var breakout = false;
     for (let i = 0; i < transaction.V.length; i++) {
         var query = "";
         let details = transaction.V[i].split(',');
         var islandgroup = null;
         var island_node_match = false;
-        for(let i = 0; i < details.length; i++) {
-            if (details[i] == "") {
-                details[i] = "NULL";
+ 
+        for(let j = 0; j < details.length; j++) {
+            if (details[j] == "") {
+                details[j] = "NULL";
             }
         }
 
@@ -37,28 +39,28 @@ logs.redo_transaction = function(transaction, callback){
             //${details.join('","')}") ON DUPLICATE KEY UPDATE `;
             query = `INSERT INTO ${process.env.DB_NAME}.appointments (${pools.db_columns.join(',')}) VALUES (`;
             
-            for (let i = 0; i < pools.db_columns.length; i++) {
+            for (let j = 0; j < pools.db_columns.length; j++) {
                 //if (pools.db_columns[i] == 'apptid') continue;
-                if (pools.db_columns[i] == 'islandgroup') {
-                    islandgroup = details[i];
+                if (pools.db_columns[j] == 'islandgroup') {
+                    islandgroup = details[j];
                 }
 
-                if (details[i] == "NULL") {
-                    query += `${details[i]}, `;
+                if (details[j] == "NULL") {
+                    query += `${details[j]}, `;
                 } else {
-                    query += `"${details[i]}", `;
+                    query += `"${details[j]}", `;
                 }
             }
             query = query.slice(0, -2);
             query += `) ON DUPLICATE KEY UPDATE `;
 
             
-            for (let i = 0; i < pools.db_columns.length; i++) {
+            for (let j = 0; j < pools.db_columns.length; j++) {
                 //if (pools.db_columns[i] == 'apptid') continue;
-                if (details[i] == "NULL") {
-                    query += `${pools.db_columns[i]} = NULL, `;
+                if (details[j] == "NULL") {
+                    query += `${pools.db_columns[j]} = NULL, `;
                 } else {
-                    query += `${pools.db_columns[i]} = "${details[i]}", `;
+                    query += `${pools.db_columns[j]} = "${details[j]}", `;
                 }
             }
             query = query.slice(0, -2);
@@ -66,7 +68,6 @@ logs.redo_transaction = function(transaction, callback){
             query = `DELETE FROM ${process.env.DB_NAME}.appointments WHERE apptid = "${details[0]}"`;
         }
 
-        //console.log(query);
         if (islandgroup == 'Luzon' && process.argv[2] == 'luzon_node') {
             island_node_match = true;
         }
@@ -83,6 +84,7 @@ logs.redo_transaction = function(transaction, callback){
                 }
                 console.log(`Transaction ${transaction.action} for ${details[0]} completed`);
                 console.log(`Query: ${query}`);
+                
                 if (i == transaction.V.length - 1) {
                     callback();
                 }
@@ -141,11 +143,12 @@ logs.replicate = function(url){
 }
 
 logs.perform_transactions_after_checkpoint = function(callback) {
-    const readStream = fs_reverse('logs.txt', {});
+    const readStream = fs_reverse('logs.txt');
     var transactions = {};
     var transactions_no_start = [];
     var checkpoint_found = false;
 
+    var end = false;
     readStream.on('data', function (line) {
         let log = line.toString().split(' ');
 
@@ -179,44 +182,46 @@ logs.perform_transactions_after_checkpoint = function(callback) {
             readStream.destroy();
         }
     }).on('close', function() {
-        let keys = Object.keys(transactions).reverse();
-
-        if (keys.length == 0) {
-            callback();
+        if (checkpoint_found) {
+            let keys = Object.keys(transactions).reverse();
+            if (keys.length == 0) {
+                console.log("No transactions to process");
+                callback();
+            } else {
+                for (let i = 0; i < keys.length; i++) {
+                    let transaction = transactions[keys[i]];
+                    if (transaction.action != null) {
+                        logs.redo_transaction(transaction, function() {
+                            if(i == keys.length - 1) {
+                                callback();
+                            }
+                        });
+                    }
+                }
+            }
+        
         } else {
-            for (let i = 0; i < keys.length; i++) {
-                let transaction = transactions[keys[i]];
-                if (transaction.action != null) {
-                    logs.redo_transaction(transaction, function() {
-                        if(i == keys.length - 1) {
-                            callback();
-                        }
-                    });
+            console.log('No checkpoint found... processing all transactions');
+            if (Object.keys(transactions).length == 0) {
+                callback();
+            } else {
+                for (let i = 0; i < Object.keys(transactions).length; i++) {
+                    let transaction = transactions[Object.keys(transactions)[i]];
+                    if (transaction.action != null) {
+                        console.log("Redoing transaction");
+                        logs.redo_transaction(transaction, function() {
+                            if(i == Object.keys(transactions).length - 1) {
+                                callback();
+                            }
+                        });
+                    }
                 }
             }
         }
+    });
+    
     
 
-
-    }).on('end', function() {
-        console.log('No checkpoint found... processing all transactions');
-        if (Object.keys(transactions).length == 0) {
-            callback();
-        } else {
-            for (let i = 0; i < Object.keys(transactions).length; i++) {
-                let transaction = transactions[Object.keys(transactions)[i]];
-                if (transaction.action != null) {
-                    logs.redo_transaction(transaction, function() {
-                        if(i == Object.keys(transactions).length - 1) {
-                            callback();
-                        }
-                    });
-                }
-            }
-        }
-
-
-    }); 
 }
 
 logs.perform_transactions_from_crashpoint = function(callback) {
