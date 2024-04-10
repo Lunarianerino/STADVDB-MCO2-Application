@@ -55,5 +55,12 @@ router.get('/report', ReportController.getPage);
 
 router.get('/add', AppointmentsController.getAddPage);
 
+/**
+ * 404 Route
+ */
+
+router.get('*', (req, res) => {
+    res.render('404');
+});
 
 module.exports = router;
