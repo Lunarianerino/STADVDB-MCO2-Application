@@ -425,35 +425,36 @@ api.getappt = function(req, res) {
                             return res.status(200).send(luzon_result);
                         });
                     }
-                }
-
-                if (central_result.length == 0) {
-                    if (process.argv[2] == 'luzon_node') {
-                        pools.vismin_node.query(query, function(err, vismin_result) {
-                            if (err) {
-                                return res.status(400).send({message: err});
-                            }
-
-                            if (vismin_result.length == 0) {
-                                return res.status(400).send({message: 'No such appointment found'});
-                            }
-                            return res.status(200).send(vismin_result);
-                        });
-                    } else {
-                        pools.luzon_node.query(query, function(err, luzon_result) {
-                            if (err) {
-                                return res.status(400).send({message: err});
-                            }
-
-                            if (luzon_result.length == 0) {
-                                return res.status(400).send({message: 'No such appointment found'});
-                            }
-                            return res.status(200).send(luzon_result);
-                        });
-                    }
                 } else {
-                    return res.status(200).send(central_result);
+                    if (central_result.length == 0) {
+                        if (process.argv[2] == 'luzon_node') {
+                            pools.vismin_node.query(query, function(err, vismin_result) {
+                                if (err) {
+                                    return res.status(400).send({message: err});
+                                }
+    
+                                if (vismin_result.length == 0) {
+                                    return res.status(400).send({message: 'No such appointment found'});
+                                }
+                                return res.status(200).send(vismin_result);
+                            });
+                        } else {
+                            pools.luzon_node.query(query, function(err, luzon_result) {
+                                if (err) {
+                                    return res.status(400).send({message: err});
+                                }
+    
+                                if (luzon_result.length == 0) {
+                                    return res.status(400).send({message: 'No such appointment found'});
+                                }
+                                return res.status(200).send(luzon_result);
+                            });
+                        }
+                    } else {
+                        return res.status(200).send(central_result);
+                    }
                 }
+
             });
         } else {
             return res.status(200).send(result);
