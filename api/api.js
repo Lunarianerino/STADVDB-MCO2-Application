@@ -5,6 +5,7 @@ const pools = require('./pool.js');
 const logs = require('./logs.js');
 const axios = require('axios');
 const fs = require('fs');
+const e = require('express');
 dotenv.config();
 
 
@@ -17,7 +18,9 @@ api.connect = function(callback) {
         callback();
     });
 }
-
+api.whereAmI = function(req, res) {
+    return res.status(200).send(process.argv[2]); 
+}
 api.checkNodes = async function(req, res) {
     let nodes = {};
     pools.central_node.getConnection(function(err, connection) {
@@ -55,11 +58,16 @@ api.status = function(req, res) {
 // NOTE: IF you want to query by apptid, dont add offset
 api.find = async function(req, res) {
     var limit = req.body.limit || 10;
-    var offset = req.body.offset * limit || 0;
+    var offset = req.body.offset || 0;
     var where_clause = "WHERE ";
     var flag = false;
-    
+
+    if (process.argv[2] != 'central_node') {
+        limit = limit / 2;
+        offset = offset / 2;
+    }
     console.log(req.query);
+
     for (key in req.query) {
         if (key != 'limit' && key != 'offset') {
             where_clause += key + " = '" + req.query[key] + "' AND ";
@@ -73,12 +81,33 @@ api.find = async function(req, res) {
     where_clause += " LIMIT " + limit + " OFFSET " + offset;
 
     var query = `SELECT * FROM ${process.env.DB_NAME}.appointments ${where_clause};`;
-    console.info(query)
+
     con.query(query, function(err, result) {
     if (err){
         return res.status(400).send({message: err});
     };
-    return res.status(200).send(result);
+
+    if (process.argv[2] == 'luzon_node') {
+        pools.vismin_node.query(query, function(err, vismin_result) {
+            if (err) {
+                return res.status(400).send({message: err});
+            }
+            result = result.concat(vismin_result);
+
+            return res.status(200).send(result);
+        });
+    } else if (process.argv[2] == 'vismin_node') {
+        pools.luzon_node.query(query, function(err, luzon_result) {
+            if (err) {
+                return res.status(400).send({message: err});
+            }
+            result = result.concat(luzon_result);
+
+            return res.status(200).send(result);
+        });
+    } else {
+        return res.status(200).send(result);
+    }
     });
 };
 
