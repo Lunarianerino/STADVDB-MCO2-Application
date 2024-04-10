@@ -35,5 +35,7 @@ router.get('/getlogs', api.getlogs);
 
 router.get('/whereAmI', api.whereAmI);
 
+router.get('/getdashboard', api.getdashboard);
+
 //TODO: add error handling
 module.exports = router;
