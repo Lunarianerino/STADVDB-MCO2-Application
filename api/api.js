@@ -183,7 +183,7 @@ api.update = async function(req, res) {
 
                         let values = [];
                         for (let key in read_result[i]) {
-                            console.log(typeof read_result[i][key]);
+                            //console.log(typeof read_result[i][key]);
                             if (typeof read_result[i][key] == 'object') {
                                 //assume it is a date
                                 values.push(read_result[i][key].toISOString().slice(0, -1));
@@ -253,7 +253,7 @@ api.delete = function(req, res) {
                 for (let i = 0; i < read_result.length; i++) {
                     let values = [];
                     for (let key in read_result[i]) {
-                        console.log(typeof read_result[i][key]);
+                        //console.log(typeof read_result[i][key]);
                         if (typeof read_result[i][key] == 'object') {
                             //assume it is a date
                             values.push(read_result[i][key].toISOString().slice(0, -1));
