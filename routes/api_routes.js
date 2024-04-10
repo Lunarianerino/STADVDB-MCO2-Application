@@ -15,7 +15,6 @@ const mysql = require('mysql');
 
 const api = require('../api/api.js');
 
-api.startup();
 const router = express.Router();
 
 router.get('/status', api.status);

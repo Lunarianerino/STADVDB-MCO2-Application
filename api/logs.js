@@ -89,6 +89,7 @@ logs.redo_transaction = function(transaction, callback){
             });
         }
     }
+
 }
 
 logs.replicate = function(url){
@@ -182,34 +183,39 @@ logs.perform_transactions_after_checkpoint = function(callback) {
 
         if (keys.length == 0) {
             callback();
-        }
-
-        for (let i = 0; i < keys.length; i++) {
-            let transaction = transactions[keys[i]];
-            if (transaction.action != null) {
-                logs.redo_transaction(transaction, function() {
-                    if(i == keys.length - 1) {
-                        callback();
-                    }
-                });
+        } else {
+            for (let i = 0; i < keys.length; i++) {
+                let transaction = transactions[keys[i]];
+                if (transaction.action != null) {
+                    logs.redo_transaction(transaction, function() {
+                        if(i == keys.length - 1) {
+                            callback();
+                        }
+                    });
+                }
             }
         }
+    
+
+
     }).on('end', function() {
         console.log('No checkpoint found... processing all transactions');
         if (Object.keys(transactions).length == 0) {
             callback();
-        }
-
-        for (let i = 0; i < Object.keys(transactions).length; i++) {
-            let transaction = transactions[Object.keys(transactions)[i]];
-            if (transaction.action != null) {
-                logs.redo_transaction(transaction, function() {
-                    if(i == Object.keys(transactions).length - 1) {
-                        callback();
-                    }
-                });
+        } else {
+            for (let i = 0; i < Object.keys(transactions).length; i++) {
+                let transaction = transactions[Object.keys(transactions)[i]];
+                if (transaction.action != null) {
+                    logs.redo_transaction(transaction, function() {
+                        if(i == Object.keys(transactions).length - 1) {
+                            callback();
+                        }
+                    });
+                }
             }
         }
+
+
     }); 
 }
 
@@ -232,10 +238,11 @@ logs.perform_transactions_from_crashpoint = function(callback) {
         }).catch((error) => {
             axios.get(`http://${process.env.VISMIN_NODE}:${process.env.VISMIN_NODE_PORT}/api/getlogs`).then((response) => {
                 logs.process_external_logs(response.data, function(){
+                    console.log("Luzon node is down, no logs to process");
                     callback();
                 });
             }).catch((error) => {
-                console.log("Both nodes are down, no logs to process");
+                console.log("Vismin node is down, no logs to process");
                 callback();
                 //console.error(error);
             });
@@ -270,7 +277,6 @@ logs.perform_transactions_from_crashpoint = function(callback) {
                 //console.error(error);
             });
             
-            callback();
             //console.error(error);
         });
     }
@@ -336,23 +342,22 @@ logs.process_external_logs = function(logs_str, callback) {
         let keys = Object.keys(transactions).reverse();
         if (keys.length == 0) {
             callback();
-        } //just in case
-        
-        //console.log("Performing Recovery");
-        for (let i = 0; i < keys.length; i++) {
-            let transaction = transactions[keys[i]];
-            if (transaction.action != null) {
-                logs.redo_transaction(transaction, function() {
-                    if(i == keys.length - 1) {
-                        callback();
-                    }
-                });
+        } else {
+            //console.log("Performing Recovery");
+            for (let i = 0; i < keys.length; i++) {
+                let transaction = transactions[keys[i]];
+                if (transaction.action != null) {
+                    logs.redo_transaction(transaction, function() {
+                        if(i == keys.length - 1) {
+                            callback();
+                        }
+                    });
+                }
             }
         }
-    }
-    if (!error_flag) {
-        callback();
-    }
+
+    } else {callback();}
+
 }
 
 module.exports = logs;

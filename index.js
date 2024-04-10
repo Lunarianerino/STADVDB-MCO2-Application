@@ -29,6 +29,7 @@ const bodyParser = require('body-parser');
 */
 const routes = require('./routes/routes.js');
 const api_routes = require('./routes/api_routes.js');
+const api = require('./api/api.js');
 
 /*
     Environment variables
@@ -58,6 +59,7 @@ app.use (bodyParser.urlencoded({encoded: false, extended: true}));
 
 app.use('/api', api_routes);
 app.use('/', routes);
+api.startup();
 app.listen(PORT, function()
 {
     console.info(`Server running at http://${HOSTNAME}:${PORT}`);
