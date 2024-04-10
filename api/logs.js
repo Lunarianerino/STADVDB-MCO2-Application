@@ -82,6 +82,7 @@ logs.redo_transaction = function(transaction, callback){
                     console.error(err);
                 }
                 console.log(`Transaction ${transaction.action} for ${details[0]} completed`);
+                console.log(`Query: ${query}`);
                 if (i == transaction.V.length - 1) {
                     callback();
                 }
