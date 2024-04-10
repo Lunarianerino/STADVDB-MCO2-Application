@@ -38,6 +38,7 @@ $(document).ready(function() {
 
         if (status != 'success') {
             alert('Error loading appointments');
+            window.location.href='/404';
             return;
         }
 
@@ -123,6 +124,7 @@ $(document).ready(function() {
 
             if (status != 'success') {
                 alert('Error loading more appointments');
+                window.location.href='/404';
                 return;
             }
             if (data.length < 10) {

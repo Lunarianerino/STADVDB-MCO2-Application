@@ -32,6 +32,7 @@ $(document).ready(function() {
 
             if (status != 'success') {
                 alert('Error updating appointment status');
+                window.location.href='/404';
                 return;
             }
 
@@ -76,6 +77,7 @@ $(document).ready(function() {
 
             if (status != 'success') {
                 alert('Error deleting appointment');
+                window.location.href='/404';
                 return;
             }
 

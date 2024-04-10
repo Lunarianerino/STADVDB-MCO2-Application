@@ -181,6 +181,7 @@ $(document).ready(function() {
             console.log(data);
             if (status != 'success') {
                 alert('Error adding appointment');
+                window.location.href='/404';
                 return;
             }
             alert('Appointment added successfully');

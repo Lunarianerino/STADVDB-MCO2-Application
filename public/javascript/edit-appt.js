@@ -18,6 +18,7 @@ $(document).ready(function() {
         console.log(status);
         if (status != 'success') {
             alert('Error loading appointment details');
+            window.location.href='/404';
             return;
         }
 
@@ -187,6 +188,7 @@ $(document).ready(function() {
 
             if (status != 'success') {
                 alert('Error updating appointment details');
+                window.location.href='/404';
                 return;
             }
 
