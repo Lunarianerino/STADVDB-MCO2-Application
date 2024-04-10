@@ -26,8 +26,13 @@ $(document).ready(function() {
         $('#clinicid').text(data.clinicid);
         $('#pxid').text(data.pxid);
         $('#apptstatus').text(data.apptstatus);
-        $('#starttime').text(data.starttime);
-        $('#endtime').text(data.endtime);
+
+        //parse the dates
+        const startdate = new Date(data.starttime);
+        const enddate = new Date(data.endtime);
+
+        $('#starttime').val(convertDateTimeLocal(startdate));
+        $('#endtime').val(convertDateTimeLocal(enddate));
         $('#appttype').text(data.appttype);
         $('#hospital').text(data.hospital);
         $('#islandgroup').text(data.islandgroup);
@@ -79,7 +84,66 @@ $(document).ready(function() {
         }
 
     });
+
+    /**
+     * Logic for detecting change in the dates
+     */
     
+    $('#starttime').on('input', function() {
+        let value = $(this).val();
+        let field = 'starttime';
+        let date = new Date(value);
+        let formatted_date = date.toISOString().slice(0, 16);
+
+        if (formatted_date != initial_data[field]) {
+            changedFields[field] = formatted_date;
+            $(this).css('color', '#736fdc');
+            $(this).css('font-weight', 'bold');
+        } else {
+            delete changedFields[field];
+            $(this).css('color', 'black');
+            $(this).css('font-weight', 'normal');
+        }
+
+        /**
+         * Logic for showing edit-buttons
+         */
+        if (Object.keys(changedFields).length > 0) {
+            $('.edit-button').fadeIn();
+            $('.cancel-button').fadeIn();
+        } else{
+            $('.edit-button').fadeOut();
+            $('.cancel-button').fadeOut();
+        }
+    });
+
+    $('#endtime').on('input', function() {
+        let value = $(this).val();
+        let field = 'endtime';
+        let date = new Date(value);
+        let formatted_date = date.toISOString().slice(0, 16);
+
+        if (formatted_date != initial_data[field]) {
+            changedFields[field] = formatted_date;
+            $(this).css('color', '#736fdc');
+            $(this).css('font-weight', 'bold');
+        } else {
+            delete changedFields[field];
+            $(this).css('color', 'black');
+            $(this).css('font-weight', 'normal');
+        }
+
+        /**
+         * Logic for showing edit-buttons
+         */
+        if (Object.keys(changedFields).length > 0) {
+            $('.edit-button').fadeIn();
+            $('.cancel-button').fadeIn();
+        } else{
+            $('.edit-button').fadeOut();
+            $('.cancel-button').fadeOut();
+        }
+    });
 
     /**
      * Logic for resetting appointment fields
@@ -133,3 +197,7 @@ $(document).ready(function() {
     
 
 });
+
+function convertDateTimeLocal(date){
+    return date.toISOString().slice(0, 16);
+}
