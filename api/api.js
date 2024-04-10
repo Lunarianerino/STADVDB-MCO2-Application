@@ -61,7 +61,6 @@ api.find = async function(req, res) {
     var offset = req.body.offset || 0;
     var where_clause = "WHERE ";
     var flag = false;
-    console.log(req.query);
 
     for (key in req.query) {
         if (key != 'limit' && key != 'offset') {
@@ -104,7 +103,7 @@ api.find = async function(req, res) {
             pools.luzon_node.query(query, function(err, luzon_result) {
                 if (err) {
                     //send the others anyways
-                    return res.status(300).send(result);
+                    return res.status(200).send(result);
                 }
                 result = result.slice(Math.floor(result.length / 2));
                 result = result.concat(luzon_result);
