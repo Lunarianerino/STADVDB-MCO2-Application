@@ -1,16 +1,139 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="../css/add.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script src="https://kit.fontawesome.com/de9022eef9.js" crossorigin="anonymous"></script>
+        <script src="../javascript/add-appt.js"></script>
+    
+        <title>SeriousMD | Add Appointment</title>
     </head>
     <body>
+        <%- include('partials/navbar') %>
 
+        <div class="container">
+            <h1> Add Appointment </h1>
+            <table class="table">
+                <tr>
+                    <th colspan="2">Appointment Details</th>
+                    <th colspan="2">Status Summary</th>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <span style="font-weight:bold;">Doctor ID / Name</span>
+                        <div class="editable" contenteditable='true' id="doctorid"></div>
+                    </td>
+                    <td >
+                        <span style="font-weight:bold;">Type</span>
+                        <br>
+                        <select class="editable" id="appttype">
+                            <option value=none selected disabled hidden>Select Type</option>
+                            <option value="Consultation">Consultation</option>
+                            <option value="Inpatient">Inpatient</option>
+                            <option value="NOT SPECIFIED">NOT SPECIFIED</option>
+                        </select>
+                    </td>
+                    <td>
+                        <span style="font-weight:bold;">Is Virtual</span> <input type="checkbox" id="isvirtual">
+                        <div>
+                            <br>
+                        </div>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <span style="font-weight:bold;">Clinic ID / Name</span>
+                        <div class="editable" contenteditable='true' id="clinicid"></div>
+                    </td>
+                    <td colspan="2">
+                        <span style="font-weight:bold;">Appointment Status</span>
+                        <br>
+                        <select class="editable" id="apptstatus">
+                            <option value=none selected disabled hidden>Select Status</option>
+                            <option value="Complete">Complete</option>
+                            <option value="Queued">Queued</option>
+                            <option value="Serving">Serving</option>
+                            <option value="NoShow">NoShow</option>
+                            <option value="Skip">Skip</option>
+                            <option value="Cancel">Cancel</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <span style="font-weight:bold;">Patient ID</span>
+                        <div class="editable" contenteditable='true' id="pxid"></div>
+                    </td>
+                    <td colspan="1">
+                        <span style="font-weight:bold;">Start Time</span>
+                        <input class="editable" type="datetime-local" id="starttime">
+                    </td>
+                    <td colspan="1">
+                        <span style="font-weight:bold;">End Time</span>
+                        <input class="editable" type="datetime-local" id="endtime">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <span style="font-weight:bold;">Appointment ID</span>
+                        <div class="editable" contenteditable='true' id="apptid"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td colspan="2"></td>
+                </tr>
+                <th colspan="4">
+                    Location Details
+                </th>
+                <tr>
+                    <td colspan="2">
+                        <span style="font-weight:bold;">Island Group</span>
+                        <br>
+                        <select class="editable" id="islandgroup">
+                            <option value=none selected disabled hidden>Select Island</option>
+                            <option value="Luzon">Luzon</option>
+                            <option value="Visayas">Visayas</option>
+                            <option value="Mindanao">Mindanao</option>
+                        </select>
+                    </td>
+                    <td colspan="2">
+                        <span style="font-weight:bold;">Region Name</span>
+                        <div class="editable" contenteditable='true' id="region_name"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <span style="font-weight:bold;">Province</span>
+                        <div class="editable" contenteditable='true' id="province"></div>
+                    </td>
+                    <td colspan="2">
+                        <span style="font-weight:bold;">City</span>
+                        <div class="editable" contenteditable='true' id="city"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <span style="font-weight:bold;">Hospital</span>
+                        <div class="editable" contenteditable='true' id="hospital"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- edit and cancel buttons-->
+        <h4>Please input all fields.</h4>
+        <div class="edit-buttons">
+            <button class="cancel-button" ><i class="fa-solid fa-rotate-left"></i></button>
+            <button class="edit-button" ><i class="fa-regular fa-pen-to-square"></i></button>
+        </div>
         
-        <script src="" async defer></script>
+
     </body>
 </html>
