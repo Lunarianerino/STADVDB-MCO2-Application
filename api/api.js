@@ -144,7 +144,7 @@ api.update = async function(req, res) {
         return res.status(400).send({message: 'Invalid apptid_arr'});
     }
     
-    var update_values = {};
+    var update_values = {}; 
 
     for(key in req.query) {
         if (key != 'apptid_arr' && key != 'replicate') {
@@ -174,7 +174,6 @@ api.update = async function(req, res) {
                     if (err) {
                         return res.status(400).send({message: 'An error occured while reading from the database, please try the inputs again'});
                     }
-                    console.log(read_result)
                     //write(X)
                     for (let i = 0; i < read_result.length; i++) {
                         for (key in update_values) {
@@ -192,7 +191,6 @@ api.update = async function(req, res) {
                             }
                         }
 
-                        console.log(values);
                         logs.log(`${transaction_id} ${values.join()}`);
                     }
 
@@ -362,7 +360,7 @@ api.insert = function(req, res) {
 
 };
 
-api.startup = function(req, res) {
+api.startup = function() {
     //ask for logs from other nodes
     // if there are discrepancies, redo
     console.log("Starting up...");
@@ -371,6 +369,7 @@ api.startup = function(req, res) {
         console.log("Transactions after checkpoint completed");
         logs.perform_transactions_from_crashpoint(function() {
             console.log("Transactions from crashpoint completed");
+            logs.log(`CHECKPOINT ${Date.now()}`); //checkpoint
         });
     });
     
