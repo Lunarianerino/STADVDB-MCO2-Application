@@ -49,6 +49,11 @@ router.get('/details/:apptid', AppointmentsController.getDetails);
 
 router.get('/report', ReportController.getPage);
 
+/**
+ * Add Appointment Routes
+ */
+
+router.get('/add', AppointmentsController.getAddPage);
 
 
 module.exports = router;

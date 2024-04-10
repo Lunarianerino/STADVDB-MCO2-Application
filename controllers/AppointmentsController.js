@@ -21,7 +21,11 @@ const AppointmentsController = {
         //     }
         // });
         res.render('details', {contents: req.params});
-    }
+    },
+
+    getAddPage: (req, res) => {
+        res.render('add');
+    },
 }
 
 module.exports = AppointmentsController;
