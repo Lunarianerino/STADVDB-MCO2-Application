@@ -55,7 +55,7 @@ api.status = function(req, res) {
 // NOTE: IF you want to query by apptid, dont add offset
 api.find = async function(req, res) {
     var limit = req.body.limit || 10;
-    var offset = req.body.offset * limit || 0;
+    var offset = req.body.offset || 0;
     var where_clause = "WHERE ";
     var flag = false;
     
