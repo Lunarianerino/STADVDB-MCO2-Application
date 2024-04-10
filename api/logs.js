@@ -219,7 +219,15 @@ logs.perform_transactions_from_crashpoint = function(callback) {
         // get logs of the other 2 nodes and process
         axios.get(`http://${process.env.LUZON_NODE}:${process.env.LUZON_NODE_PORT}/api/getlogs`).then((response) => {
             logs.process_external_logs(response.data, function(){
-                callback();
+                axios.get(`http://${process.env.VISMIN_NODE}:${process.env.VISMIN_NODE_PORT}/api/getlogs`).then((response) => {
+                    logs.process_external_logs(response.data, function(){
+                        callback();
+                    });
+                }).catch((error) => {
+                    console.log("Vismin node is down, no logs to process");
+                    callback();
+                    //console.error(error);
+                });
             });
         }).catch((error) => {
             axios.get(`http://${process.env.VISMIN_NODE}:${process.env.VISMIN_NODE_PORT}/api/getlogs`).then((response) => {
@@ -232,6 +240,8 @@ logs.perform_transactions_from_crashpoint = function(callback) {
                 //console.error(error);
             });
         });
+
+
     } else {
         // get logs of central node and process
         axios.get(`http://${process.env.CENTRAL_NODE}:${process.env.CENTRAL_NODE_PORT}/api/getlogs`).then((response) => {
