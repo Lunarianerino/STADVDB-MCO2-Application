@@ -300,7 +300,9 @@ api.startup = function(req, res) {
 
     logs.perform_transactions_after_checkpoint(function() {
         console.log("Transactions after checkpoint completed");
-    
+        logs.perform_transactions_from_crashpoint(function() {
+            console.log("Transactions from crashpoint completed");
+        });
     });
     
     // const readStream = fs_reverse('logs.txt', {});
@@ -333,9 +335,9 @@ api.getappt = function(req, res) {
 api.getlogs = function(req, res) {
     //read logs.txt using fs
     try {
-        res.status(200).send(fs.readFileSync('logs.txt', 'utf8'));
+        return res.status(200).send(fs.readFileSync('logs.txt', 'utf8'));
     } catch (err) {
-        res.status(400).send({message: 'An error occured while reading the logs'});
+        return res.status(400).send({message: 'An error occured while reading the logs'});
     }
 
 }

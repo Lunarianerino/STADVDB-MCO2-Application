@@ -32,7 +32,7 @@ router.get('/insert', api.insert);
 
 router.get('/getappt/:apptid', api.getappt);
 
-
+router.get('/getlogs', api.getlogs);
 
 //TODO: add error handling
 module.exports = router;
