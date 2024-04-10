@@ -79,7 +79,7 @@ api.find = async function(req, res) {
     if (islandgroup == 'Luzon' && (process.argv[2] == 'luzon_node' || process.argv[2] == 'central_node')) {
         island_node_match = true;
     }
-    if (islandgroup == 'Visayas' && process.argv[2] == 'vismin_node' || process.argv[2] == 'central_node') {
+    if (islandgroup == 'Visayas' && process.argv[2] == 'vismin_node' || islandgroup == 'Mindanao' && process.argv[2] == 'vismin_node' || process.argv[2] == 'central_node') {
         island_node_match = true;
         console.log("Island node match")
     }
@@ -123,7 +123,6 @@ api.find = async function(req, res) {
                     if (err) {
                         return res.status(400).send({message: err});
                     }
-                    console.log(luzon_result);
                     return res.status(200).send(luzon_result);
                 });
             });
