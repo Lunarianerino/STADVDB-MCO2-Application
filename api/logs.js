@@ -116,6 +116,25 @@ logs.replicate = function(url){
         }).catch((error) => {
             logs.log(`CENTRAL_NODE ERROR ${Date.now()}`);
         });
+
+        //sanity check
+        if (process.argv[2] == 'luzon_node') {
+            axios.get(`http://${process.env.VISMIN_NODE}:${process.env.VISMIN_NODE_PORT}${url}&replicate=true`).then((response) => {
+                logs.log(`VISMIN_NODE CHECKPOINT ${Date.now()}`);
+                //console.log(response.data);
+            }).catch((error) => {
+                logs.log(`VISMIN_NODE ERROR ${Date.now()}`);
+                //console.error(error);
+            });
+        } else {
+            axios.get(`http://${process.env.LUZON_NODE}:${process.env.LUZON_NODE_PORT}${url}&replicate=true`).then((response) => {
+                logs.log(`LUZON_NODE CHECKPOINT ${Date.now()}`);
+                //console.log(response.data);
+            }).catch((error) => {
+                logs.log(`LUZON_NODE ERROR ${Date.now()}`);
+                //console.error(error);
+            });
+        }  
     }
 }
 
