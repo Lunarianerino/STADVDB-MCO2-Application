@@ -21,7 +21,7 @@ logs.log = function(log) {
     }
 }
 
-logs.redo_transaction = function(transaction){
+logs.redo_transaction = function(transaction, callback){
     var query = "";
 
     for (let i = 0; i < transaction.V.length; i++) {
@@ -45,13 +45,16 @@ logs.redo_transaction = function(transaction){
             query = `DELETE FROM ${process.env.DB_NAME}.appointments WHERE apptid = "${details[0]}"`;
         }
 
-        console.log(query);
-            con.query(query, function(err, result) {
-                if (err) {
-                    console.error(err);
-                }
-                console.log(`Transaction ${transaction.action} for ${details[0]} completed`);
-            });
+        //console.log(query);
+        con.query(query, function(err, result) {
+            if (err) {
+                console.error(err);
+            }
+            console.log(`Transaction ${transaction.action} for ${details[0]} completed`);
+            if (i == transaction.V.length - 1) {
+                callback();
+            }
+        });
     }
 }
 
@@ -84,7 +87,7 @@ logs.replicate = function(url){
     }
 }
 
-logs.perform_transactions_after_checkpoint = function() {
+logs.perform_transactions_after_checkpoint = function(callback) {
     const readStream = fs_reverse('logs.txt', {});
     var transactions = {};
     var transactions_no_start = [];
@@ -123,19 +126,20 @@ logs.perform_transactions_after_checkpoint = function() {
             readStream.destroy();
         }
     }).on('close', function() {
-        console.log("Reading Done");
-
         let keys = Object.keys(transactions).reverse();
         for (let i = 0; i < keys.length; i++) {
             let transaction = transactions[keys[i]];
             if (transaction.action != null) {
-                console.log(transaction);
-                logs.redo_transaction(transaction);
+                logs.redo_transaction(transaction, function() {
+                    callback();
+                });
             }
         }
     }); 
-    
 }
 
+logs.perform_transactions_from_crashpoint = function(callback) {
+    
+}
 
 module.exports = logs;

@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const pools = require('./pool.js');
 const logs = require('./logs.js');
 const axios = require('axios');
+const fs = require('fs');
 dotenv.config();
 
 
@@ -296,9 +297,11 @@ api.startup = function(req, res) {
     //ask for logs from other nodes
     // if there are discrepancies, redo
     console.log("Starting up...");
+
+    logs.perform_transactions_after_checkpoint(function() {
+        console.log("Transactions after checkpoint completed");
     
-    console.log("Startup complete");
-    logs.perform_transactions_after_checkpoint();
+    });
     
     // const readStream = fs_reverse('logs.txt', {});
 
@@ -325,5 +328,15 @@ api.getappt = function(req, res) {
         }
         return res.status(200).send(result);
     });
+}
+
+api.getlogs = function(req, res) {
+    //read logs.txt using fs
+    try {
+        res.status(200).send(fs.readFileSync('logs.txt', 'utf8'));
+    } catch (err) {
+        res.status(400).send({message: 'An error occured while reading the logs'});
+    }
+
 }
 module.exports = api;
