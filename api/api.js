@@ -123,14 +123,25 @@ api.update = async function(req, res) {
                     if (err) {
                         return res.status(400).send({message: 'An error occured while reading from the database, please try the inputs again'});
                     }
-
+                    console.log(read_result)
                     //write(X)
                     for (let i = 0; i < read_result.length; i++) {
                         for (key in update_values) {
                             read_result[i][key] = update_values[key];
                         }
 
-                        let values = Object.values(read_result[i]);
+                        let values = [];
+                        for (let key in read_result[i]) {
+                            console.log(typeof read_result[i][key]);
+                            if (typeof read_result[i][key] == 'object') {
+                                //assume it is a date
+                                values.push(read_result[i][key].toISOString().slice(0, -1));
+                            } else {
+                                values.push(read_result[i][key]);
+                            }
+                        }
+
+                        console.log(values);
                         logs.log(`${transaction_id} ${values.join()}`);
                     }
 
@@ -140,6 +151,7 @@ api.update = async function(req, res) {
                     //actual commit
                     con.query(query, function(err, result){
                         if (err) {
+                            console.log(err);
                             return res.status(400).send({message: 'An error occured while updating the database, please run the redo function'});
                         }
                         
@@ -188,7 +200,17 @@ api.delete = function(req, res) {
 
                 //write(X)
                 for (let i = 0; i < read_result.length; i++) {
-                    logs.log(`${transaction_id} ${Object.values(read_result[i]).join()}`);
+                    let values = [];
+                    for (let key in read_result[i]) {
+                        console.log(typeof read_result[i][key]);
+                        if (typeof read_result[i][key] == 'object') {
+                            //assume it is a date
+                            values.push(read_result[i][key].toISOString().slice(0, -1));
+                        } else {
+                            values.push(read_result[i][key]);
+                        }
+                    }
+                    logs.log(`${transaction_id} ${values.join()}`);
                 }
 
                 //partial commit
@@ -217,8 +239,8 @@ api.delete = function(req, res) {
 
 api.insert = function(req, res) {
     //var query = `INSERT INTO ${process.env.DB_NAME}.appointments ()`;
-    console.log(api.columns);
-    var query = `INSERT INTO ${process.env.DB_NAME}.appointments (${api.columns.join()}) VALUES (`;
+    console.log(pools.db_columns);
+    var query = `INSERT INTO ${process.env.DB_NAME}.appointments (${pools.db_columns.join()}) VALUES (`;
 
     generateUUID(function(err, transaction_id) {
         generateUUID(function(err, apptid) {
@@ -230,15 +252,15 @@ api.insert = function(req, res) {
                 console.log(`Transaction ${transaction_id} started`);
                 query += `'${apptid}', `;
                 let values = [apptid];
-                for (let i = 0; i < api.columns.length; i++) {
-                    if (api.columns[i] == 'apptid')
+                for (let i = 0; i < pools.db_columns.length; i++) {
+                    if (pools.db_columns[i] == 'apptid')
                     {
                         console.log('apptid')
                         continue;
                     }
-                    if (req.query[api.columns[i]] != undefined) {
-                        query += `'${req.query[api.columns[i]]}', `;
-                        values.push(req.query[api.columns[i]]);
+                    if (req.query[pools.db_columns[i]] != undefined) {
+                        query += `'${req.query[pools.db_columns[i]]}', `;
+                        values.push(req.query[pools.db_columns[i]]);
                     }
                     else {
                         query += 'NULL, ';
@@ -274,19 +296,6 @@ api.startup = function(req, res) {
     //ask for logs from other nodes
     // if there are discrepancies, redo
     console.log("Starting up...");
-
-    con.query(`SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='${process.env.DB_NAME}' AND TABLE_NAME='appointments';`, function(err, result) {
-        if (err) {
-            return res.status(400).send({message: err});
-        }
-        var columns = [];
-        for (let i = 0; i < result.length; i++) {
-            columns.push(result[i].COLUMN_NAME);
-        }
-
-        //pray this finishes before the set up
-        api.columns = columns;
-    });
     
     console.log("Startup complete");
     logs.perform_transactions_after_checkpoint();
