@@ -4,7 +4,9 @@ const fs_reverse = require('fs-reverse');
 const axios = require('axios');
 //current active node
 const con = pools[process.argv[2]];
-
+const dotenv = require('dotenv');
+const api = require('./api.js');
+dotenv.config();
 const logs = {};
 
 //details is an object containing {islandgroup: string, action: string, apptid: string}
@@ -19,8 +21,38 @@ logs.log = function(log) {
     }
 }
 
-logs.redo = function(){
+logs.redo_transaction = function(transaction){
+    var query = "";
 
+    for (let i = 0; i < transaction.V.length; i++) {
+        var query = "";
+        let details = transaction.V[i].split(',');
+
+        for(let i = 0; i < details.length; i++) {
+            if (details[i] == "") {
+                details[i] = "NULL";
+            }
+        }
+
+        if (transaction.action != 'DELETE') {
+            query = `INSERT INTO ${process.env.DB_NAME}.appointments (${pools.db_columns.join(',')}) VALUES ("${details.join('","')}") ON DUPLICATE KEY UPDATE `;
+            for (let i = 0; i < pools.db_columns.length; i++) {
+                //if (pools.db_columns[i] == 'apptid') continue;
+                query += `${pools.db_columns[i]} = "${details[i]}", `;
+            }
+            query = query.slice(0, -2);
+        } else {
+            query = `DELETE FROM ${process.env.DB_NAME}.appointments WHERE apptid = "${details[0]}"`;
+        }
+
+        console.log(query);
+            con.query(query, function(err, result) {
+                if (err) {
+                    console.error(err);
+                }
+                console.log(`Transaction ${transaction.action} for ${details[0]} completed`);
+            });
+    }
 }
 
 logs.replicate = function(url){
@@ -42,7 +74,6 @@ logs.replicate = function(url){
             logs.log(`VISMIN_NODE ERROR ${Date.now()}`);
             //console.error(error);
         });
-
     } else if (process.argv[2] == 'luzon_node' || process.argv[2] == 'vismin_node') {
         axios.get(`http://${process.env.CENTRAL_NODE}:${process.env.CENTRAL_NODE_PORT}${url}&replicate=true`).then((response) => {
             logs.log(`CENTRAL_NODE CHECKPOINT ${Date.now()}`);
@@ -73,9 +104,9 @@ logs.perform_transactions_after_checkpoint = function() {
             if (transactions[log[0]] != undefined) {
                 if (log[1] != 'START') {
                     //push log[1] to log[n] to V
-                    let action = "";
-                    for (let i = 1; i < log.length; i++) {
-                        action += log[i]; //expected to be comma separated
+                    let action = log[1];
+                    for (let i = 2; i < log.length; i++) {
+                        action += ' ' + log[i]; //expected to be comma separated
                     }
                     transactions[log[0]].V.push(action);
                 } else {
@@ -93,7 +124,15 @@ logs.perform_transactions_after_checkpoint = function() {
         }
     }).on('close', function() {
         console.log("Reading Done");
-        console.log(transactions);
+
+        let keys = Object.keys(transactions).reverse();
+        for (let i = 0; i < keys.length; i++) {
+            let transaction = transactions[keys[i]];
+            if (transaction.action != null) {
+                console.log(transaction);
+                logs.redo_transaction(transaction);
+            }
+        }
     }); 
     
 }
