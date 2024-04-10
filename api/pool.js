@@ -43,4 +43,5 @@ pools.vismin_node = mysql.createPool({
     queueLimit: 0
 });
 
+pools.db_columns = ['apptid', 'doctorid', 'clinicid', 'pxid', 'apptstatus', 'starttime', 'endtime', 'appttype', 'isvirtual', 'hospital', 'islandgroup', 'region_name', 'province', 'city'];
 module.exports = pools;
