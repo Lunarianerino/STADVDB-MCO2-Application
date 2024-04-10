@@ -352,6 +352,7 @@ api.insert = function(req, res) {
                 } else {
                     if (req.query.replicate == undefined) {
                         logs.replicate(decodeURIComponent(req.originalUrl));
+                        logs.log(`CHECKPOINT ${Date.now()}`);
                     }
                 }
             }

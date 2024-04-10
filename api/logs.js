@@ -174,6 +174,22 @@ logs.perform_transactions_after_checkpoint = function(callback) {
                 });
             }
         }
+    }).on('end', function() {
+        console.log('No checkpoint found... processing all transactions');
+        if (Object.keys(transactions).length == 0) {
+            callback();
+        }
+
+        for (let i = 0; i < Object.keys(transactions).length; i++) {
+            let transaction = transactions[Object.keys(transactions)[i]];
+            if (transaction.action != null) {
+                logs.redo_transaction(transaction, function() {
+                    if(i == Object.keys(transactions).length - 1) {
+                        callback();
+                    }
+                });
+            }
+        }
     }); 
 }
 
